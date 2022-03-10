@@ -4,7 +4,7 @@ import os, argparse, time, sys
 from simple_file_user.File import File
 from importlib import import_module, invalidate_caches
 
-def setTesting(*args, tf, **kwargs):
+def setTesting(*args, testingFunctions: list, **kwargs):
     def function_(func):
         def testMode(testMode):
             if testMode == "time":
@@ -16,22 +16,22 @@ def setTesting(*args, tf, **kwargs):
             elif testMode == "memory":
                 return sys.getsizeof(func)
         testMode.__name__ = func.__name__
-        tf.append(testMode)
+        testingFunctions.append(testMode)
         return testMode
     return function_
 
 class main:
-    possibleTests = "time memory"
+    possibleTests = ["time", "memory"]
     testingFunctions = []
 
-    def __init__(self, tests: str, iters: int) -> None:
-        if isinstance(tests, str):
-            tests = [tests]
-        elif not isinstance(tests, list):
-            raise TypeError("Tester can't do this test.")
+    def __init__(self, tests: list, iters: int) -> None:
+        if not isinstance(tests, list):
+            raise TypeError("Invalid test given.")
+
         for test in tests:
             if not test in self.possibleTests:
                 raise ValueError(f"Invalid test given: {test}")
+
         self.tests = tests
         self.iters = iters
 
@@ -40,56 +40,51 @@ class main:
         self.__showHTable()
 
     def importScript(self, pathToScript: str) -> None:
-        invalidate_caches()
-        programFolder = os.path.dirname(__file__)
+        programFolder = os.path.abspath(os.path.dirname(__file__))
         pathToScript = os.path.abspath(pathToScript)
 
         script = File(pathToScript)
         scriptContent = script.read()
         scriptName = script.getName()
 
-        if scriptName in os.listdir() and scriptName.endswith(".py"):
-            self.script = import_module(os.path.basename)
-            main.testingFunctions.extend(self.script.testingFunctions)
+        if scriptName in os.listdir(programFolder) and scriptName.endswith(".py"):
+            invalidate_caches()
+            self.script = import_module(os.path.splitext(scriptName)[0])
         else:
 
             newScriptName = self.__makeNewScriptName(scriptName)
             newScript = File(os.path.join(programFolder, newScriptName), new = True)
             newScript.rewrite(scriptContent)
 
-            name = os.path.split(newScriptName)[1]
-            sc = os.path.splitext(name)[0]
+            moduleName = os.path.splitext(os.path.split(newScriptName)[1])[0]
 
             invalidate_caches()
-
-            self.script = import_module(sc)
-            main.testingFunctions.extend(self.script.testingFunctions)
+            self.script = import_module(moduleName)
+            
+        self.testingFunctions.extend(self.script.testingFunctions)
 
 
     def startTesting(self) -> None:
-        self.res = {test: [[func(test) for i in range(self.iters)] for func in main.testingFunctions] for test in self.tests}
+        self.res = {test: [[func(test) for i in range(self.iters)] for func in self.testingFunctions] for test in self.tests}
         self.showRes()
 
-    def __makeNewScriptName(self, scriptName: str) -> None:
-        scriptNameAndExtension = os.path.splitext(scriptName)
-        if scriptNameAndExtension[1] == "":
-            return scriptName + ".py"
-        else:
-            return scriptNameAndExtension[0] + ".py"
+    def __makeNewScriptName(self, scriptName: str) -> str:
+        scriptName = os.path.splitext(scriptName)[0]
+        return scriptName + ".py"
 
     def __createHTable(self) -> None:
-        self.func_names = [func.__name__ for func in main.testingFunctions]
+        self.functionNames = [func.__name__ for func in self.testingFunctions]
         self.iters_ = [f"итерация {i}|" for i in range(1, self.iters + 1)]
 
-        test_len, func_len, res_lens = self.__setLens()
+        testLen, funcLen, resLens = self.__setLens()
 
-        heading = f"|%+{test_len}s|%+{func_len}s|" % ("Тесты.", "Функции.") + ''.join(
-            [f"%+{res_lens[i]}s" % self.iters_[i] for i in range(self.iters)]
+        heading = f"|%+{testLen}s|%+{funcLen}s|" % ("Тесты.", "Функции.") + ''.join(
+            [f"%+{resLens[i]}s" % self.iters_[i] for i in range(self.iters)]
             )
 
         table_len = len(heading)
 
-        content = self.__createContentForHTable(test_len, func_len, res_lens, table_len)
+        content = self.__createContentForHTable(testLen, funcLen, resLens, table_len)
 
         self.hTable = ["-" * table_len + "\n", *heading, "\n" + "-" * table_len + "\n", *content]
 
@@ -98,7 +93,7 @@ class main:
 
     def __setLens(self):
         test_len = max([len("Тесты."), *[len(test) for test in self.tests]])
-        func_len = max([len("Функции."), *[len(name) for name in self.func_names]])
+        func_len = max([len("Функции."), *[len(name) for name in self.functionNames]])
 
         res_lens = []
 
@@ -123,7 +118,7 @@ class main:
             strs.append( f"|%+{test_len}s|" % test)
 
             i = 0
-            for func, name in zip(funcs, [func.__name__ for func in main.testingFunctions]):
+            for func, name in zip(funcs, [func.__name__ for func in self.testingFunctions]):
                 if i:
                     strs.append(f"|{' ' * test_len}|")
 
@@ -146,6 +141,12 @@ class main:
             strs.append("-" * tableLen + "\n")
 
         return strs
+
+
+class Lens:
+    def __init__(self, testNames: list, functionsNames: list, resultsAndIterations: list) -> None:
+        self.testLen = max([len(name) for name in testNames])
+        self.functionLen = max([len(name) for name in functionsNames])
 
 
 if __name__ == "__main__":
