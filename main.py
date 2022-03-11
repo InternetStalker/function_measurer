@@ -20,6 +20,13 @@ def setTesting(*args, testingFunctions: list, **kwargs):
         return testMode
     return function_
 
+class Lens:
+    def __init__(self, testNames: list, functionsNames: list, resultsAndIterations: list) -> None:
+        self.testLen = max([len(name) for name in testNames])
+        self.functionLen = max([len(name) for name in functionsNames])
+        self.coloumnLens = [max(iter) for iter in resultsAndIterations]
+        self.tableLen = self.testLen + self.functionLen + self.coloumnLens + 3
+
 class main:
     possibleTests = ["time", "memory"]
     testingFunctions = []
@@ -76,40 +83,37 @@ class main:
         self.functionNames = [func.__name__ for func in self.testingFunctions]
         self.iters_ = [f"итерация {i}|" for i in range(1, self.iters + 1)]
 
-        testLen, funcLen, resLens = self.__setLens()
+        lens = self.__setLens()
 
-        heading = f"|%+{testLen}s|%+{funcLen}s|" % ("Тесты.", "Функции.") + ''.join(
-            [f"%+{resLens[i]}s" % self.iters_[i] for i in range(self.iters)]
+        heading = f"|%+{lens.testLen}s|%+{lens.functionLen}s|" % ("Тесты.", "Функции.") + ''.join(
+            [f"%+{lens.coloumnLens[i]}s" % self.iters_[i] for i in range(self.iters)]
             )
 
-        table_len = len(heading)
+        content = self.__createContentForHTable(lens.testLen, lens.functionLen, lens.coloumnLens, lens.tableLen)
 
-        content = self.__createContentForHTable(testLen, funcLen, resLens, table_len)
-
-        self.hTable = ["-" * table_len + "\n", *heading, "\n" + "-" * table_len + "\n", *content]
+        self.hTable = ["-" * lens.tableLen + "\n", *heading, "\n" + "-" * lens.tableLen + "\n", *content]
 
     def __showHTable(self) -> None:
         print("".join(self.hTable))
 
-    def __setLens(self):
-        test_len = max([len("Тесты."), *[len(test) for test in self.tests]])
-        func_len = max([len("Функции."), *[len(name) for name in self.functionNames]])
+    def __setLens(self) -> Lens:
+        tests = ["Тесты.", *[test for test in self.tests]]
+        functions = ["Функции.", *[name for name in self.functionNames]]
 
-        res_lens = []
+        resultColumns = []
 
-        for iter in self.iters_:
-            iter_index = iter.split(" ")[1]
-            iter_index = int(iter_index[:len(iter_index) - 1]) - 1
-
-            __res_list = [len(iter)]
+        for iterIndex in range(self.iters):
+            column = [len(self.iters_[iterIndex])]
 
             for funcs in self.res.values():
                 for results in funcs:
-                    __res_list.append(len(str(results[iter_index])))
+                    column.append(len(str(results[iterIndex])))
         
-            res_lens.append(max(__res_list))
+            resultColumns.append(column)
         
-        return test_len, func_len, res_lens
+        lens = Lens(tests, functions)
+
+        return lens
 
     def __createContentForHTable(self, test_len, func_len, res_lens: list, tableLen: int) -> list:
         strs = []
@@ -141,13 +145,6 @@ class main:
             strs.append("-" * tableLen + "\n")
 
         return strs
-
-
-class Lens:
-    def __init__(self, testNames: list, functionsNames: list, resultsAndIterations: list) -> None:
-        self.testLen = max([len(name) for name in testNames])
-        self.functionLen = max([len(name) for name in functionsNames])
-
 
 if __name__ == "__main__":
     argparser = argparse.ArgumentParser(description = "Program for testing python modules.")
