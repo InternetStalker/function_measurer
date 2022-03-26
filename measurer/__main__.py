@@ -1,34 +1,18 @@
 #!usr/bin/env python
 # -*- coding: utf-8 -*-
-import os, argparse, time, sys
+import os, argparse
 from simple_file_user.File import File
 from importlib import import_module, invalidate_caches
-
-def setTesting(*args, testingFunctions: list, **kwargs):
-    def function_(func):
-        def testMode(testMode):
-            if testMode == "time":
-                start = time.time()
-                func(*args, **kwargs)
-                end = time.time()
-                runningTime = start - end
-                return runningTime
-            elif testMode == "memory":
-                return sys.getsizeof(func)
-        testMode.__name__ = func.__name__
-        testingFunctions.append(testMode)
-        return testMode
-    return function_
 
 class Lens:
     def __init__(self, testNames: list, functionsNames: list, resultsAndIterations: list) -> None:
         self.testLen = max([len(name) for name in testNames])
         self.functionLen = max([len(name) for name in functionsNames])
         self.coloumnLens = [max(iter) for iter in resultsAndIterations]
-        self.tableLen = self.testLen + self.functionLen + self.coloumnLens + 3
+        self.tableLen = self.testLen + self.functionLen + sum(self.coloumnLens) + 3
 
 class main:
-    possibleTests = ["time", "memory"]
+    possibleTests = ["runtime", "memory"]
     testingFunctions = []
 
     def __init__(self, tests: list, iters: int) -> None:
@@ -81,11 +65,11 @@ class main:
 
     def __createHTable(self) -> None:
         self.functionNames = [func.__name__ for func in self.testingFunctions]
-        self.iters_ = [f"итерация {i}|" for i in range(1, self.iters + 1)]
+        self.iters_ = [f"Iteration {i}|" for i in range(1, self.iters + 1)]
 
         lens = self.__setLens()
 
-        heading = f"|%+{lens.testLen}s|%+{lens.functionLen}s|" % ("Тесты.", "Функции.") + ''.join(
+        heading = f"|%+{lens.testLen}s|%+{lens.functionLen}s|" % ("Tests.", "Functions.") + ''.join(
             [f"%+{lens.coloumnLens[i]}s" % self.iters_[i] for i in range(self.iters)]
             )
 
@@ -97,8 +81,8 @@ class main:
         print("".join(self.hTable))
 
     def __setLens(self) -> Lens:
-        tests = ["Тесты.", *[test for test in self.tests]]
-        functions = ["Функции.", *[name for name in self.functionNames]]
+        tests = ["Tests.", *[test for test in self.tests]]
+        functions = ["Functions.", *[name for name in self.functionNames]]
 
         resultColumns = []
 
@@ -111,7 +95,7 @@ class main:
         
             resultColumns.append(column)
         
-        lens = Lens(tests, functions)
+        lens = Lens(tests, functions, resultColumns)
 
         return lens
 
@@ -133,24 +117,14 @@ class main:
 
                 i += 1
                 strs.append("\n")
-
-            if not i:
-                strs.extend (
-                    [
-                    " " * func_len + "|",
-                    *[" " * (len_ - 1) + "|" for len_ in res_lens], 
-                    "\n"
-                    ]
-                )
             strs.append("-" * tableLen + "\n")
-
         return strs
 
 if __name__ == "__main__":
-    argparser = argparse.ArgumentParser(description = "Program for testing python modules.")
+    argparser = argparse.ArgumentParser(description = "Program for testing python modules.", prog = "tester")
     argparser.add_argument("module", type = str, help = "Given module for testing.")
     argparser.add_argument("iters", type = int, help = "How many times module will be tested.")
-    argparser.add_argument("tests", nargs = "+", choices = ["time", "memory"], help = "Tests that program should do with given module.")
+    argparser.add_argument("tests", nargs = "+", choices = ["runtime", "memory"], help = "Tests those program should do with given module.")
     args = argparser.parse_args()
 
     tester = main(args.tests, args.iters)
