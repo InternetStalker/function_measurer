@@ -25,7 +25,7 @@ Let's save this file with name `sample.py`. After that we open powerShell or cmd
 
 And we get this:
 
--------------------------------------------------------
+-------------------------------------------------------_
 | Tests.|Functions.|Iteration 1|Iteration 2|Iteration 3|  
 --------------------------------------------------------_  
 |runtime|      summ|        0.0|        0.0|        0.0|  
