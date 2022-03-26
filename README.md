@@ -25,13 +25,8 @@ Let's save this file with name `sample.py`. After that we open powerShell or cmd
 
 And we get this:
 
-
-`-------------------------------------------------------`-
-`| Tests.|Functions.|Iteration 1|Iteration 2|Iteration 3`| 
-`-------------------------------------------------------`-
-`|runtime|      summ|        0.0|        0.0|        0.0`|
-`-------------------------------------------------------`-
-
+```-------------------------------------------------------
+| Tests.|Functions.|Iteration 1|Iteration 2|Iteration 3|  --------------------------------------------------------  |runtime|      summ|        0.0|        0.0|        0.0|  --------------------------------------------------------  ```
 
 First coloumn is tests those we have given to our package. In this case we have given only one test. That is runtime. When we give runtime test tester runs testing functions and prints their runtimes. The next column shows functions we have tested. Other coloumns show the results of the testing.
 
