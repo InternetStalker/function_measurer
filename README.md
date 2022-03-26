@@ -31,6 +31,8 @@ And we get this:
 |runtime|      summ|        0.0|        0.0|        0.0|  
 --------------------------------------------------------_
 
+Don't care about view of tis table. It seems so strange because i do not know syntax of markdown and use converter.
+
 First coloumn is tests those we have given to our package. In this case we have given only one test. That is runtime. When we give runtime test tester runs testing functions and prints their runtimes. The next column shows functions we have tested. Other coloumns show the results of the testing.
 
 Detailed description of using.
