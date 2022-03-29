@@ -7,13 +7,11 @@
 <p>Let's examine using of this package on little example:</p>
 <code style="white-space: pre-wrap;">from measurer import setTesting
 
-testingFunctions = []
-
-@setTesting(2, 2, testingFunctions = testingFunctions)
+@setTesting(2, 2)
 def summ(a: int, b: int):
     return a + b
 </code>
-<p>We create list named testingFunctions. We have function and we want to test it. We use decorator setTesting for it. Two first arguments gives to summ. Key word argument testingFunctions takes list that has the same name.</p>
+<p>We have function and we want to test it. We use decorator setTesting for it. Arguments given to setTesting passes to summ.</p>
 <p>Let's save this file with name <code>sample.py</code>. After that we open powerShell or cmd and enter this command into the shell:</p>
 <code>py -m measurer sample.py 3 memory</code>
 <p>And we get this:</p>

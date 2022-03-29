@@ -1,10 +1,11 @@
 from setuptools import setup
-from measurer import __version__
 import os
 
 def read(path: str):
     with open(path, "r", encoding = "utf-8") as file:
         return file.read()
+
+__version__ = "0.2"
 
 scriptFolder = os.path.dirname(__file__)
 ReadmePath = os.path.join(scriptFolder, "README.html")
@@ -34,5 +35,8 @@ setup(name = 'function_measurer',
     project_urls = projectUrls,
     keywords = 'test tests testing runtime memory',
     classifiers = classifiers,
-    license = 'MIT'
+    license = 'MIT',
+    install_requires = [
+        "simple_file_user"
+    ]
 )

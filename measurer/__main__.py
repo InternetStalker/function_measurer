@@ -3,6 +3,7 @@
 import os, argparse
 from simple_file_user.File import File
 from importlib import import_module, invalidate_caches
+from . import testRunner
 
 class Lens:
     def __init__(self, testNames: list, functionsNames: list, resultsAndIterations: list) -> None:
@@ -51,8 +52,12 @@ class main:
 
             invalidate_caches()
             self.script = import_module(moduleName)
-            
-        self.testingFunctions.extend(self.script.testingFunctions)
+            newScript.remove()
+        
+
+        for name in dir(self.script):
+            if isinstance(getattr(self.script, name), testRunner):
+                self.testingFunctions.append(getattr(self.script, name))
 
 
     def startTesting(self) -> None:
@@ -64,7 +69,7 @@ class main:
         return scriptName + ".py"
 
     def __createHTable(self) -> None:
-        self.functionNames = [func.__name__ for func in self.testingFunctions]
+        self.functionNames = [func.name for func in self.testingFunctions]
         self.iters_ = [f"Iteration {i}|" for i in range(1, self.iters + 1)]
 
         lens = self.__setLens()
@@ -106,7 +111,7 @@ class main:
             strs.append( f"|%+{test_len}s|" % test)
 
             i = 0
-            for func, name in zip(funcs, [func.__name__ for func in self.testingFunctions]):
+            for func, name in zip(funcs, [func.name for func in self.testingFunctions]):
                 if i:
                     strs.append(f"|{' ' * test_len}|")
 
@@ -117,6 +122,8 @@ class main:
 
                 i += 1
                 strs.append("\n")
+            if not i:
+                strs.extend([" " * func_len + "|", *[" " * (len_ - 1) + "|" for len_ in res_lens], "\n"])
             strs.append("-" * tableLen + "\n")
         return strs
 

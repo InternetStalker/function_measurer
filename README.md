@@ -15,9 +15,9 @@ Quick start
 
 Let's examine using of this package on little example:
 
-`from measurer import setTesting testingFunctions = [] @setTesting(2, 2, testingFunctions = testingFunctions) def summ(a: int, b: int): return a + b`
+`from measurer import setTesting @setTesting(2, 2) def summ(a: int, b: int): return a + b`
 
-We create list named testingFunctions. We have function and we want to test it. We use decorator setTesting for it. Two first arguments gives to summ. Key word argument testingFunctions takes list that has the same name.
+We have function and we want to test it. We use decorator setTesting for it. Arguments given to setTesting passes to summ.
 
 Let's save this file with name `sample.py`. After that we open powerShell or cmd and enter this command into the shell:
 

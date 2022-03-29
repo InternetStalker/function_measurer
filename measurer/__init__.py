@@ -1,19 +1,27 @@
 import time, sys
 
-__version__ = "0.1.1"
+class testRunner:
+    def __init__(self, function, *args, **kwargs) -> None:
+        self.function = function
+        self.args = args
+        self.kwargs = kwargs
+        self.name = function.__name__
 
-def setTesting(*args, testingFunctions: list, **kwargs):
-    def function_(func):
-        def testMode(testMode):
-            if testMode == "runtime":
-                start = time.time()
-                func(*args, **kwargs)
-                end = time.time()
-                runningTime = start - end
-                return runningTime
-            elif testMode == "memory":
-                return sys.getsizeof(func)
-        testMode.__name__ = func.__name__
-        testingFunctions.append(testMode)
-        return testMode
-    return function_
+    def __call__(self, mode: str):
+        if mode == "runtime":
+            start = time.time()
+            self.function(*self.args, **self.kwargs)
+            end = time.time()
+            runningTime = start - end
+            return runningTime
+        elif mode == "memory":
+            return sys.getsizeof(self.function)
+
+
+class setTesting:
+    def __init__(self, *args, **kwargs) -> None:
+        self.args = args
+        self.kwargs = kwargs
+
+    def __call__(self, function) -> testRunner:
+        return testRunner(function, *self.args, **self.kwargs)
