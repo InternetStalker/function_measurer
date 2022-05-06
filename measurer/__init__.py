@@ -20,6 +20,7 @@ class testRunner:
 
 class setTesting:
     def __init__(self, *args, **kwargs) -> None:
+        from measurer import testRunner
         self.args = args
         self.kwargs = kwargs
 

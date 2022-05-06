@@ -36,4 +36,12 @@ def summ(a: int, b: int):
         </tr>
     </tbody>
 </table>
+<p>Also you can write all data into configuration file. If you named the file "config.cfg" you can just add --config argument when you are starting module. In other way you must add name of config file after this argument.</p>
+<p>This is an example of this file:</p>
+<code style="white-space: pre-wrap;">
+[MEASURER_DATA]
+module = sample.py
+iters = 3
+tests = runtime, memory
+</code>
 <p>If you did not understand something try to use <code>-h</code> option. If you found some mistakes in this docs, please make a pull request with correcting of found mistake.</p>

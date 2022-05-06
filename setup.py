@@ -5,9 +5,9 @@ def read(path: str):
     with open(path, "r", encoding = "utf-8") as file:
         return file.read()
 
-__version__ = "0.2"
+__version__ = "0.3"
 
-scriptFolder = os.path.dirname(__file__)
+scriptFolder = os.path.split(__file__)[0]
 ReadmePath = os.path.join(scriptFolder, "README.html")
 
 projectUrls = {
