@@ -5,7 +5,7 @@ def read(path: str):
     with open(path, "r", encoding = "utf-8") as file:
         return file.read()
 
-__version__ = "0.3.1"
+__version__ = "0.3.2"
 
 scriptFolder = os.path.split(__file__)[0]
 ReadmePath = os.path.join(scriptFolder, "README.md")
