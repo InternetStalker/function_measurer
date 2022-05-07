@@ -28,18 +28,18 @@ class setTesting:
     def __call__(self, function) -> testRunner:
         return testRunner(function, *self.args, **self.kwargs)
 
-def setTesting(*args, **kwargs):
-    def wrapper(function):
-        def caller(test: str):
-            global testingFunctions
-            if test == "runtime":
-                start = time.time()
-                function()
-                end = time.time()
-                return end - start
-
-            elif test == "memory":
-                return sys.getsizeof(function)
-
-            else:
-                raise ValueError("Unknown test")
+#def setTesting(*args, **kwargs):
+#    def wrapper(function):
+#        def caller(test: str):
+#            global testingFunctions
+#            if test == "runtime":
+#                start = time.time()
+#                function()
+#                end = time.time()
+#                return end - start
+#
+#            elif test == "memory":
+#                return sys.getsizeof(function)
+#
+#            else:
+#                raise ValueError("Unknown test")
