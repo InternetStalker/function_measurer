@@ -15,7 +15,8 @@ class CLIArgument:
 
         if not name.startswith("--") and required:
             raise ValueError("Required argument is not possible for positional argument.")
-        self.required = required
+        else:
+            self.required = required
 
         if description is None:
             self.description = ""
@@ -25,7 +26,7 @@ class CLIArgument:
         if nargs == "+":
             self.nargs = float("inf")
         elif isinstance(nargs, int):
-            self.nargs = nargs - 1
+            self.nargs = nargs
         else: 
             raise Exception("Invalid value for nargs.")
         
@@ -33,7 +34,9 @@ class CLIArgument:
             self.type = str
         elif not isinstance(type_, type):
             raise ValueError("Type argument must be type.")
-        self.type = type_
+        else:
+            self.type = type_
+
         self.choices = choices
 
         if action is None:
@@ -48,8 +51,6 @@ class CLIArgument:
         self.value = None
 
     def setValue(self, value: str = None):
-        print(self.name, value)
-        print(self.type)
         if self.action == "storeValue":
             if value is None:
                 value = self.default
@@ -60,7 +61,6 @@ class CLIArgument:
 
             if not self.choices is None:
                 if not value in self.choices:
-                    print(value)
                     raise ValueError("Invalid argument's value.")
 
         elif self.action == "storeTrue":
@@ -69,12 +69,15 @@ class CLIArgument:
         elif self.action == "storeFalse":
             value = False
 
-        if self.value is None and self.nargs:
+
+        if self.value is None and self.nargs > 1:
             self.value = [value]
-        elif self.nargs:
-            self.value.append(value)
-        else:
+
+        elif self.value is None and self.nargs == 1:
             self.value = value
+
+        else:
+            self.value.append(value)
 
 
 class ArgumentParser:
@@ -104,16 +107,15 @@ class ArgumentParser:
     def parseArgs(self, args: str = None) -> dict:
         if args is None:
             args = sys.argv[1:]
-            print(args)
         
         if "-h" in args or "--help" in args:
             self.__typeHelp()
             sys.exit(0)
 
-        if "-ch" in args:
-            self.arguments = [self.arguments[args.index("-ch")+1]]
-        elif "--chooseGroup" in args:
-            self.arguments = [self.arguments[args.index("--chooseGroup")+1]]
+        # if "-ch" in args:
+        #     self.arguments = [self.arguments[args.index("-ch")+1]]
+        # elif "--chooseGroup" in args:
+        #     self.arguments = [self.arguments[args.index("--chooseGroup")+1]]
 
         for positionals, optionals in map(self.__findArgsNames, self.arguments):
             setOptionalValue = False
@@ -124,8 +126,9 @@ class ArgumentParser:
             valuedOptionals = {}
             optionalIndex = 0
             positionalIndex = 0
+            unknownPositional = None
             unknownOptional = None
-            for index, arg in enumerate(args):
+            for arg in args:
                 if setPositionalValue:
                     valuedPositionals[lastArg.name].setValue(arg)
                     setPositionalValue = lastArg.nargs
@@ -149,17 +152,18 @@ class ArgumentParser:
                         break
                         
                 else:
-                    print("ind", positionalIndex)
-                    valuedPositionals[positionals[positionalIndex].name] = positionals[positionalIndex]
+                    try:
+                        valuedPositionals[positionals[positionalIndex].name] = positionals[positionalIndex]
+                    except IndexError:
+                        break
                     try:
                         valuedPositionals[positionals[positionalIndex].name].setValue(arg)
                     except Exception as error:
                         self.__exception(error)
+                    unknownPositional = None
                     lastArg = positionals[positionalIndex]
                     lastArg.nargs -= 1
                     setPositionalValue = bool(lastArg.nargs)
-                    print("posval", setPositionalValue)
-                    print("nargs", lastArg.nargs)
                     positionalIndex += 1
 
 
@@ -181,14 +185,30 @@ class ArgumentParser:
         
         else:
             if not unknownOptional is None:
-                self.__exception("Unknown optional argument")
+                self.__exception(f"Unknown optional argument: {unknownOptional}")
+            elif not unknownPositional is None:
+                self.__exception(f"Unknown positional argument: {unknownPositional}")
             else:
                 self.__exception("Invalid positionals arguments.")
 
 
 
     def __typeHelp(self) -> None:
-        pass
+        self.__printUsage()
+        help = ""
+        for index, argumentGroup in enumerate(self.arguments):
+            help += f"    group {index}\n"
+            for argument in argumentGroup:
+                help += f"    {argument.name}: {argument.description}"
+                if not argument.default is None:
+                    help += f" Default: {argument.default}"
+                if not argument.choices is None:
+                    help += f" Choices: {', '.join(argument.choices)}"
+                
+                help += "\n"
+            help += "\n"
+        
+        print(help)
 
     def __findArgsNames(self, args: list):
         positionals = []
@@ -201,9 +221,23 @@ class ArgumentParser:
         return positionals, optionals
 
     def __exception(self, massage) -> None:
-        print(f"usage: {self.name} [-h] [-c C]")
-        print(massage)
+        self.__printUsage()
+        print("Error:", massage)
         sys.exit(1)
+
+    def __printUsage(self) -> None:
+        usage = "usage: [-h, --help] "
+        for argumentGroup in self.arguments:
+            usage += "( "
+            for argument in argumentGroup:
+                if argument.name.startswith("-"):
+                    usage += f"[{argument.name}]"
+                else:
+                    usage += argument.name
+                usage += " "
+            usage += ")"
+
+        print(usage)
 
 class CLI:
     possibleTests = ["runtime", "memory"]
@@ -212,9 +246,9 @@ class CLI:
         argparser = ArgumentParser("tester", description="Program for testing python modules.")
         argparser.addArgument("module", type_=str, description="Given module for testing.")
         argparser.addArgument("iters", type_=int, description="How many times module will be tested.")
-        argparser.addArgument("tests", choices=CLI.possibleTests, description=f"Tests those measurer should do with given module. Possible values: {', '.join(CLI.possibleTests)}", nargs="+")
+        argparser.addArgument("tests", choices=CLI.possibleTests, description="Tests those measurer should do with given module.", nargs="+")
         argparser.createGroup()
-        argparser.addArgument("--config", type_=str, group=1, default=os.path.abspath("config.cfg"), required=True)
+        argparser.addArgument("--config", type_=str, group=1, description="Takes all setup configuration from configuration file.", default="config.cfg", required=True)
         arguments = argparser.parseArgs()
 
         if not arguments["--config"] is None:
