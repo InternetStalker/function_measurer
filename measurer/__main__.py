@@ -1,269 +1,23 @@
 # -*- coding: utf-8 -*-
-import os, sys, configparser
-from simple_file_user import read, rewrite
+import os
+import argparse
+import pathlib
 from importlib import import_module, invalidate_caches
 from . import testRunner
-
-class CLIArgument:
-    possibleActions = ("storeValue", "storeTrue", "storeFalse")
-
-    def __init__(self, name: str, description: str, type_: type, choices: list, action: str, default, required, nargs) -> None:
-        if not isinstance(name, str):
-            raise ValueError("Name argument must be str type.")
-        else:
-            self.name = name
-
-        if not name.startswith("--") and required:
-            raise ValueError("Required argument is not possible for positional argument.")
-        else:
-            self.required = required
-
-        if description is None:
-            self.description = ""
-        else:
-            self.description = description
-
-        if nargs == "+":
-            self.nargs = float("inf")
-        elif isinstance(nargs, int):
-            self.nargs = nargs
-        else: 
-            raise Exception("Invalid value for nargs.")
-        
-        if type_ is None:
-            self.type = str
-        elif not isinstance(type_, type):
-            raise ValueError("Type argument must be type.")
-        else:
-            self.type = type_
-
-        self.choices = choices
-
-        if action is None:
-            self.action = "storeValue"
-        elif not action in CLIArgument.possibleActions:
-            raise ValueError("Unknown action value.")
-        else:
-            self.action = action
-
-        self.default = default
-
-        self.value = None
-
-    def setValue(self, value: str = None):
-        if self.action == "storeValue":
-            if value is None:
-                value = self.default
-            elif not isinstance(value, self.type):
-                value = self.type(value)
-            else:
-                value = value
-
-            if not self.choices is None:
-                if not value in self.choices:
-                    raise ValueError("Invalid argument's value.")
-
-        elif self.action == "storeTrue":
-            value = True
-
-        elif self.action == "storeFalse":
-            value = False
-
-
-        if self.value is None and self.nargs > 1:
-            self.value = [value]
-
-        elif self.value is None and self.nargs == 1:
-            self.value = value
-
-        else:
-            self.value.append(value)
-
-
-class ArgumentParser:
-    def __init__(self, name: str = None, description: str = None) -> None:
-        if name is None:
-            self.name = os.path.split(sys.argv[0])[1]
-        elif not isinstance(name, str):
-            raise TypeError("Name argument must be string.")
-        else:
-            self.name = name
-
-        if description is None:
-            self.description = ""
-        elif not isinstance(description, str):
-            raise TypeError("Description argument must be string.")
-        else:
-            self.description = description
-
-        self.arguments = [[]]
-
-    def addArgument(self, name: str, description: str = None, type_: type = str, choices: list = None, action: str = None, group: int = 0, default = None, required: bool = False, nargs=1) -> None:
-        self.arguments[group].append(CLIArgument(name, description, type_, choices, action, default, required, nargs))
-
-    def createGroup(self):
-        self.arguments.append([])
-
-    def parseArgs(self, args: str = None) -> dict:
-        if args is None:
-            args = sys.argv[1:]
-        
-        if "-h" in args or "--help" in args:
-            self.__typeHelp()
-            sys.exit(0)
-
-        # if "-ch" in args:
-        #     self.arguments = [self.arguments[args.index("-ch")+1]]
-        # elif "--chooseGroup" in args:
-        #     self.arguments = [self.arguments[args.index("--chooseGroup")+1]]
-
-        for positionals, optionals in map(self.__findArgsNames, self.arguments):
-            setOptionalValue = False
-            setPositionalValue = False
-            lastArg = None
-
-            valuedPositionals = {}
-            valuedOptionals = {}
-            optionalIndex = 0
-            positionalIndex = 0
-            unknownPositional = None
-            unknownOptional = None
-            for arg in args:
-                if setPositionalValue:
-                    valuedPositionals[lastArg.name].setValue(arg)
-                    setPositionalValue = lastArg.nargs
-                    valuedPositionals[lastArg.name].nargs -= 1
-                    setPositionalValue = bool(lastArg.nargs)
-
-                elif setOptionalValue:
-                    valuedOptionals[lastArg.name].setValue(arg)
-                    valuedOptionals[lastArg.name].nargs -= 1
-
-                elif arg.startswith("-"):
-                    optionalsNames = [optional.name for optional in optionals]
-                    if arg in optionalsNames:
-                        valuedOptionals[arg] = optionals[optionalsNames.index(arg)]
-                        if optionals[optionalsNames.index(arg)].action == "storeValue":
-                            setOptionalValue = True
-                        optionalIndex += 1
-                        lastArg = optionals[optionalsNames.index(arg)]
-                    else:
-                        unknownOptional = "--" + arg
-                        break
-                        
-                else:
-                    try:
-                        valuedPositionals[positionals[positionalIndex].name] = positionals[positionalIndex]
-                    except IndexError:
-                        break
-                    try:
-                        valuedPositionals[positionals[positionalIndex].name].setValue(arg)
-                    except Exception as error:
-                        self.__exception(error)
-                    unknownPositional = None
-                    lastArg = positionals[positionalIndex]
-                    lastArg.nargs -= 1
-                    setPositionalValue = bool(lastArg.nargs)
-                    positionalIndex += 1
-
-
-            if setOptionalValue:
-                valuedOptionals[lastArg.name].setValue()
-
-            if not unknownOptional is None:
-                continue
-            
-            if len(valuedPositionals) == len(positionals):
-                for argument in optionals:
-                    if argument.required:
-                        if not argument.name in valuedOptionals:
-                            self.__exception("Required optional argument doesn't given.")
-
-                args = {arg.name: None for argGroup in self.arguments for arg in argGroup}
-                args.update({name: arg.value for name, arg in {**valuedPositionals, **valuedOptionals}.items()})
-                return args
-        
-        else:
-            if not unknownOptional is None:
-                self.__exception(f"Unknown optional argument: {unknownOptional}")
-            elif not unknownPositional is None:
-                self.__exception(f"Unknown positional argument: {unknownPositional}")
-            else:
-                self.__exception("Invalid positionals arguments.")
-
-
-
-    def __typeHelp(self) -> None:
-        self.__printUsage()
-        help = ""
-        for index, argumentGroup in enumerate(self.arguments):
-            help += f"    group {index}\n"
-            for argument in argumentGroup:
-                help += f"    {argument.name}: {argument.description}"
-                if not argument.default is None:
-                    help += f" Default: {argument.default}"
-                if not argument.choices is None:
-                    help += f" Choices: {', '.join(argument.choices)}"
-                
-                help += "\n"
-            help += "\n"
-        
-        print(help)
-
-    def __findArgsNames(self, args: list):
-        positionals = []
-        optionals = []
-        for argument in args:
-            if argument.name.startswith("-") or argument.name.startswith("--"):
-                optionals.append(argument)
-            else:
-                positionals.append(argument)
-        return positionals, optionals
-
-    def __exception(self, massage) -> None:
-        self.__printUsage()
-        print("Error:", massage)
-        sys.exit(1)
-
-    def __printUsage(self) -> None:
-        usage = "usage: [-h, --help] "
-        for argumentGroup in self.arguments:
-            usage += "( "
-            for argument in argumentGroup:
-                if argument.name.startswith("-"):
-                    usage += f"[{argument.name}]"
-                else:
-                    usage += argument.name
-                usage += " "
-            usage += ")"
-
-        print(usage)
 
 class CLI:
     possibleTests = ["runtime", "memory"]
 
     def __init__(self) -> None:
-        argparser = ArgumentParser("tester", description="Program for testing python modules.")
-        argparser.addArgument("module", type_=str, description="Given module for testing.")
-        argparser.addArgument("iters", type_=int, description="How many times module will be tested.")
-        argparser.addArgument("tests", choices=CLI.possibleTests, description="Tests those measurer should do with given module.", nargs="+")
-        argparser.createGroup()
-        argparser.addArgument("--config", type_=str, group=1, description="Takes all setup configuration from configuration file.", default="config.cfg", required=True)
-        arguments = argparser.parseArgs()
+        argparser = argparse.ArgumentParser("tester", description="Program for testing python modules.", fromfile_prefix_chars="-@")
+        argparser.add_argument("module", type_=str, description="Given module for testing.")
+        argparser.add_argument("iters", type_=int, description="How many times module will be tested.")
+        argparser.add_argument("tests", choices=CLI.possibleTests, description="Tests those measurer should do with given module.", nargs="+")
+        arguments = argparser.parse_args()
 
-        if not arguments["--config"] is None:
-            configParser = configparser.ConfigParser()
-            if not os.access(os.path.abspath(arguments["--config"]), os.F_OK):
-                raise FileNotFoundError(f"File doesn't exist. Path: {os.path.abspath(arguments['--config'])}")
-            configParser.read(os.path.abspath(arguments["--config"]))
-
-            self.module = os.path.abspath(configParser["MEASURER_DATA"]["module"])
-            self.iters = int(configParser["MEASURER_DATA"]["iters"])
-            self.tests = configParser["MEASURER_DATA"]["tests"].split(", ")
-        else:
-            self.module = os.path.abspath(arguments["module"])
-            self.iters = arguments["iters"]
-            self.tests = arguments["tests"]
+        self.module = os.path.abspath(arguments["module"])
+        self.iters = arguments["iters"]
+        self.tests = arguments["tests"]
 
         if not os.access(self.module, os.F_OK):
             raise FileNotFoundError(f"File doesn't exists. Path: {self.module}")
@@ -291,8 +45,8 @@ class Tester:
             script = import_module(os.path.splitext(scriptName)[0])
 
         else:
-            scriptContent = read(pathToScript)
-            rewrite(os.path.join(programFolder, scriptName), scriptContent)
+            scriptContent = pathlib.Path(pathToScript).read_text()
+            pathlib.Path(os.path.join(programFolder, scriptName)).write_text(scriptContent)
             invalidate_caches()
             script = import_module(os.path.splitext(scriptName))
         

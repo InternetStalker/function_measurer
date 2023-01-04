@@ -51,14 +51,6 @@ The first argument in our example is the path to a file that you want to test. T
 | runtime | Measures the runtime of function. |
 | memory  | Measures the occupied memory.     |
 
-Also you can write all data into configuration file. If you named the file `config.cfg` you can just add `--config` argument when you are starting module. In other way you must add name of configure file after this argument.
-This is an example of this file:
-
-```ini
-[MEASURER_DATA]
-module = sample.py
-iters = 3
-tests = runtime, memory
-```
+If you're too bored of repeating th same cli arguments you can just write them into file and pass the path to that file to measurer after `@` symbol.
 
 If you did not understand something try to use `-h` option. If you found some mistakes in this docs, please make a pull request with correcting of found mistake.
