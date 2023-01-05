@@ -1,6 +1,3 @@
-venv/
-function_measurer.egg-info/
-measurer/__pycache__/
-build/
-__pycache__/
-.vscode/
+dist/
+
+*.pyc
