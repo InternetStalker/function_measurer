@@ -16,14 +16,14 @@ Quick start
 Let's examine using of this package on a little example:
 
 ```python
-from measurer import setTesting
+from measurer import SetTesting
 
-@setTesting(2, 2)
+@SetTesting(2, 2)
 def summ(a: int, b: int): 
     return a + b
 ```
 
-We have function and we want to test it. We use decorator `setTesting` for it. Arguments given to `setTesting` passes to `summ`.
+We have function and we want to test it. We use decorator `SetTesting` for it. Arguments given to `SetTesting` passes to `summ`.
 
 Let's save this file with name `sample.py`. After that we open powerShell or cmd and enter this command into the shell:
 
