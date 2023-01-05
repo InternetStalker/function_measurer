@@ -2,35 +2,39 @@
 import os
 import argparse
 import pathlib
+
+from rich.console import Console
+from rich.table import Table
 from importlib import import_module, invalidate_caches
+
 from . import testRunner
 
 class CLI:
     possibleTests = ["runtime", "memory"]
 
     def __init__(self) -> None:
-        argparser = argparse.ArgumentParser("tester", description="Program for testing python modules.", fromfile_prefix_chars="-@")
-        argparser.add_argument("module", type_=str, description="Given module for testing.")
-        argparser.add_argument("iters", type_=int, description="How many times module will be tested.")
-        argparser.add_argument("tests", choices=CLI.possibleTests, description="Tests those measurer should do with given module.", nargs="+")
+        argparser = argparse.ArgumentParser("tester", description="Program for testing python modules.", fromfile_prefix_chars="@")
+        argparser.add_argument("module", type=str, help="Given module for testing.")
+        argparser.add_argument("iters", type=int, help="How many times module will be tested.")
+        argparser.add_argument("tests", choices=CLI.possibleTests, help="Tests those measurer should do with given module.", nargs="+")
         arguments = argparser.parse_args()
 
-        self.module = os.path.abspath(arguments["module"])
-        self.iters = arguments["iters"]
-        self.tests = arguments["tests"]
+        self.module = os.path.abspath(arguments.module)
+        self.iters = arguments.iters
+        self.tests = arguments.tests
 
         if not os.access(self.module, os.F_OK):
             raise FileNotFoundError(f"File doesn't exists. Path: {self.module}")
 
-    def getTests(self) -> list:
+    def getTests(self) -> list[str] | str:
         return self.tests
 
-    def showTable(self, table) -> None:
-        buildenTable = table.build()
-        print(buildenTable)
+    def showTable(self, table: Table) -> None:
+        console = Console()
+        console.print(table)
 
 class Tester:
-    def __init__(self, tests: list) -> None:
+    def __init__(self, tests: list[str] | str) -> None:
         if not isinstance(tests, list):
             tests = [tests]
         self.tests = tests
@@ -55,7 +59,7 @@ class Tester:
                 self.testingFunctions.append(getattr(script, name))
 
     def makeTests(self, iters: int) -> None:
-        self.results = {}
+        self.results: dict[str: dict[str: list]] = {}
         for test in self.tests:
             if not self.testingFunctions == []:
                 results = {}
@@ -75,49 +79,18 @@ class Tester:
     def getResults(self) -> dict:
         return self.results
 
-class Table:
-    def __init__(self, results: dict, iters: int) -> None:
-        tests = ["Tests."]
-        funcNames = ["Functions."]
-        iters_ = [[f"Iteration {i + 1}."] for i in range(iters)]
-        for test, functionNames in results.items():
-            tests.append(test)
-            for functionName, results_ in functionNames.items():
-                funcNames.append(functionName)
-                if not test == "memory":
-                    for iteration, result in enumerate(results_):
-                        iters_[iteration].append(str(result))
+    def create_table(self, iters: int) -> Table:
+        table = Table()
+        table.add_column("Tests.")
+        table.add_column("Functions.")
+        for i in range(1, iters+1):
+            table.add_column(f"Iteration {i}.")
 
+        for test, function_names in self.results.items():
+            for name in function_names:
+                table.add_row(test, name, *[str(value) for value in function_names.values()])
 
-        testLen = max([len(test) for test in tests])
-        namesLen = max([len(name) for name in funcNames])
-        itersLens = [max([len(res) for res in iter]) for iter in iters_]
-        tableLen = testLen + namesLen + sum(itersLens) + 3 + iters
-
-
-        self.table = ["-" * tableLen + "\n",
-        f"|%{testLen}s|%{namesLen}s|" % ("Tests.", "Functions.") + "".join([f"%{len}s|" % iters_[i][0] for i, len in enumerate(itersLens)]) + "\n"
-        , "-" * tableLen + "\n"]
-
-        for test, functionNames in results.items():
-            self.table.append(f"|%{testLen}s|" % test)
-            for row, functionName, results in zip(range(iters), functionNames, functionNames.values()):
-                if row:
-                    self.table.append(f"|{' ' * testLen}|")
-                self.table.append(f"%{namesLen}s|" % functionName)
-                if test == "memory":
-                    self.table.append(f"%{sum(itersLens) + iters - 1}s|" % results)
-                else:
-                    for i, result in enumerate(results):
-                        self.table.append(f"%{itersLens[i]}s|" % result)
-
-                self.table.append("\n")
-            self.table.append("-" * tableLen + "\n")
-
-
-
-    def build(self) -> str:
-        return "".join(self.table)
+        return table
 
 def main():
     cliManager = CLI()
@@ -126,7 +99,7 @@ def main():
     tester.importScript(cliManager.module)
     tester.makeTests(cliManager.iters)
 
-    table = Table(tester.getResults(), cliManager.iters)
+    table = tester.create_table(cliManager.iters)
 
     cliManager.showTable(table)
 
