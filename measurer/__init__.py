@@ -1,32 +1,52 @@
-import time
 import sys
+import time
+import typing
 
-class testRunner:
-    def __init__(self, function, *args, **kwargs) -> None:
-        self.function = function
-        self.args = args
-        self.kwargs = kwargs
-        self.name = function.__name__
+class TestRunner:
+    def __init__(self, function, *args: typing.Any, **kwds: typing.Any) -> None:
+        self.__function = function
+        self.__args = args
+        self.__kwds = kwds
+        self.__name = function.__name__
 
-    def __call__(self, mode: str):
+    def test(self, mode: str):
         if mode == "runtime":
-            start = time.time()
-            self.function(*self.args, **self.kwargs)
-            end = time.time()
-            runningTime = start - end
+            start = time.perf_counter()
+            self.function(*self.__args, **self.__kwds)
+            end = time.perf_counter()
+            runningTime =  end - start
             return runningTime
+
         elif mode == "memory":
             return sys.getsizeof(self.function)
+    
+    @property
+    def name(self) -> str:
+        return self.__name
+    
+    @property
+    def arguments(self) -> list[typing.Any]:
+        return self.__args
+    
+    @property
+    def kw_arguments(self) -> dict[str: typing.Any]:
+        return self.__kwds
+    
+    @property
+    def function(self) -> typing.Any:
+        return self.__function
+    
+    def __call__(self, *args: typing.Any, **kwds: typing.Any) -> typing.Any:
+        return self.function(*args, **kwds)
 
 
-class setTesting:
+class SetTesting:
     def __init__(self, *args, **kwargs) -> None:
-        from measurer import testRunner
         self.args = args
         self.kwargs = kwargs
 
-    def __call__(self, function) -> testRunner:
-        return testRunner(function, *self.args, **self.kwargs)
+    def __call__(self, function) -> TestRunner:
+        return TestRunner(function, *self.args, **self.kwargs)
 
 #def setTesting(*args, **kwargs):
 #    def wrapper(function):

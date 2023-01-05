@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import os
 import argparse
 import pathlib
 
@@ -7,7 +6,7 @@ from rich.console import Console
 from rich.table import Table
 from importlib import import_module, invalidate_caches
 
-from . import testRunner
+from . import TestRunner
 
 class CLI:
     possible_tests = ["runtime", "memory"]
@@ -57,20 +56,20 @@ class Tester:
             tests = [tests]
 
         self.tests = tests
-        self.testing_functions = []
+        self.testing_functions: list[TestRunner] = []
 
     def import_script(self, path_to_script: pathlib.Path) -> None:
         program_folder = pathlib.Path(__file__).parent
+        new_script_path = program_folder / path_to_script.name
 
-        script_name = path_to_script.name
-
-        script_content = pathlib.Path(path_to_script).read_text()
-        (program_folder / script_name).write_text(script_content)
+        new_script_path.write_text(path_to_script.read_text())
         invalidate_caches()
         script = import_module(path_to_script.stem)
+
+        new_script_path.unlink()
         
         for name in dir(script):
-            if isinstance(getattr(script, name), testRunner):
+            if isinstance(getattr(script, name), TestRunner):
                 self.testing_functions.append(getattr(script, name))
 
     def make_tests(self, iters: int) -> None:
@@ -79,7 +78,7 @@ class Tester:
             if self.testing_functions != []:
                 results = {}
                 for function in self.testing_functions:
-                    results.update({function.name: [function(test) for _ in range(iters)]})
+                    results.update({function.name: [function.test(test) for _ in range(iters)]})
                 self.results.update({test: results})
             else:
                 self.results.update({test: {"": ["" for _ in range(iters)]}})
@@ -103,7 +102,7 @@ class Tester:
 def main():
     cliManager = CLI()
 
-    tester = Tester(cliManager.getTests())
+    tester = Tester(cliManager.get_tests())
     tester.import_script(cliManager.module)
     tester.make_tests(cliManager.iters)
 
