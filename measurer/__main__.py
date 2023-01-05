@@ -92,10 +92,11 @@ class Tester:
         table.add_column("Functions.")
         for i in range(1, iters+1):
             table.add_column(f"Iteration {i}.")
+        table.add_column("Average.")
 
         for test, function_names in self.results.items():
             for name, values in function_names.items():
-                table.add_row(test, name, *[str(value) for value in values])
+                table.add_row(test, name, *[str(value) for value in values], str(sum(values)/len(values)))
 
         return table
 
