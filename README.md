@@ -8,7 +8,7 @@ Installing
 
 This package distributes by Python Packaging Index, aka PyPI, so you can install measurer using pip:
 
-`py -m pip install function_measurer`
+`pip install function_measurer`
 
 Quick start
 -----------
@@ -27,7 +27,7 @@ We have function and we want to test it. We use decorator `SetTesting` for it. A
 
 Let's save this file with name `sample.py`. After that we open powerShell or cmd and enter this command into the shell:
 
-`py -m measurer sample.py 3 memory`
+`python -m measurer sample.py 3 memory`
 
 And we get this:
 
@@ -38,8 +38,6 @@ And we get this:
 |runtime|      summ|        0.0|        0.0|        0.0|
 --------------------------------------------------------
 ```
-
-First column is tests those we have given to our package. In this case we have given only one test. That is runtime. When we give runtime test tester runs testing functions and prints their runtimes. The next column shows functions we have tested. Other columns show the results of the testing.
 
 Detailed description of using.
 ------------------------------
