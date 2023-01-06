@@ -11,15 +11,30 @@ class TestRunner:
 
     def test(self, mode: str):
         if mode == "runtime":
-            start = time.perf_counter()
-            self.function(*self.__args, **self.__kwds)
-            end = time.perf_counter()
-            runningTime =  end - start
-            return runningTime
+            self.__get_runtime(self.__function)
 
         elif mode == "memory":
-            return sys.getsizeof(self.function)
+            self.__get_size
     
+    def __get_size(self, obj: typing.Any) -> int:
+        size = sys.getsizeof(obj)
+        if isinstance(obj, typing.Iterable):
+            return size + sum(self.__get_size(el) for el in obj)
+        
+        else:
+            if hasattr(obj, "__dict__"):
+                return size + sum(self.__get_size(val) for val in obj.__dict__.values)
+            
+            else:
+                return size
+
+    def __get_runtime(self) -> float:
+        start = time.perf_counter()
+        self.__function(*self.__args, **self.__kwds)
+        end = time.perf_counter()
+        runtime =  end - start
+        return runtime
+
     @property
     def name(self) -> str:
         return self.__name
@@ -47,19 +62,3 @@ class SetTesting:
 
     def __call__(self, function) -> TestRunner:
         return TestRunner(function, *self.args, **self.kwargs)
-
-#def setTesting(*args, **kwargs):
-#    def wrapper(function):
-#        def caller(test: str):
-#            global testingFunctions
-#            if test == "runtime":
-#                start = time.time()
-#                function()
-#                end = time.time()
-#                return end - start
-#
-#            elif test == "memory":
-#                return sys.getsizeof(function)
-#
-#            else:
-#                raise ValueError("Unknown test")
