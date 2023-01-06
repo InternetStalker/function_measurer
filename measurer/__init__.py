@@ -14,7 +14,7 @@ class TestRunner:
             self.__get_runtime(self.__function)
 
         elif mode == "memory":
-            self.__get_size
+            self.__get_size()
     
     def __get_size(self, obj: typing.Any) -> int:
         size = sys.getsizeof(obj)
