@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import pathlib
 import argparse
 
@@ -36,7 +35,7 @@ class CLI:
         argparser.add_argument(
             "--csv",
             help = "Path to csv file where results would be saved.",
-            #default = None,
+            default = None,
             action = "store"
         )
 
@@ -91,7 +90,7 @@ class Tester:
         for test in self.__tests:
             if self.__testing_functions != []:
                 for function in self.__testing_functions:
-                    self.results[test] = {function.name: [function.test(test) for _ in range(self.__iters)]}
+                    self.results[test] = {function.name: [function.test() for _ in range(self.__iters)]}
             else:
                 self.results[test] = {"": ["" for _ in range(self.__iters)]}
 
