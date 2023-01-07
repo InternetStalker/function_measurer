@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-import argparse
 import pathlib
+import argparse
 
-from rich.table import Table
-from rich.console import Console
+
 from importlib import import_module, invalidate_caches
 
 from . import TestRunner, TestResult
+from .result_tables import create_result_table, BaseResultTable
 
 class CLI:
     possible_tests = ["runtime", "memory"]
@@ -31,14 +31,27 @@ class CLI:
             "tests",
             choices = CLI.possible_tests,
             help = "Tests those measurer should do with given module.",
-            nargs = "+"
             )
+        
+        argparser.add_argument(
+            "--csv",
+            help = "Path to csv file where results would be saved.",
+            #default = None,
+            action = "store"
+        )
 
         arguments = argparser.parse_args()
 
         self.module = pathlib.Path(arguments.module)
         self.iters: int = arguments.iters
         self.tests: list[str] = arguments.tests
+        self.save_to_csv = bool(arguments.csv)
+
+        if self.save_to_csv:
+            self.path_to_csv = pathlib.Path(arguments.csv)
+        
+        else:
+            self.path_to_csv = None
 
         if not self.module.exists():
             raise FileNotFoundError(f"File doesn't exists. Path: {self.module}")
@@ -49,17 +62,15 @@ class CLI:
     def get_tests(self) -> list[str] | str:
         return self.tests
 
-    def show_table(self, table: Table) -> None:
-        console = Console()
-        console.print(table)
 
 class Tester:
-    def __init__(self, tests: list[str] | str) -> None:
+    def __init__(self, tests: list[str] | str, iters: int) -> None:
         if not isinstance(tests, list):
             tests = [tests]
 
-        self.tests = tests
-        self.testing_functions: list[TestRunner] = []
+        self.__tests = tests
+        self.__iters = iters
+        self.__testing_functions: list[TestRunner] = []
 
     def import_script(self, path_to_script: pathlib.Path) -> None:
         program_folder = pathlib.Path(__file__).parent
@@ -73,71 +84,39 @@ class Tester:
         
         for name in dir(script):
             if isinstance(getattr(script, name), TestRunner):
-                self.testing_functions.append(getattr(script, name))
+                self.__testing_functions.append(getattr(script, name))
 
-    def make_tests(self, iters: int) -> None:
+    def make_tests(self) -> None:
         self.results: dict[str: dict[str: list[TestResult]]] = {}
-        for test in self.tests:
-            if self.testing_functions != []:
-                results = {}
-                for function in self.testing_functions:
-                    results.update({function.name: [function.test(test) for _ in range(iters)]})
-                self.results.update({test: results})
+        for test in self.__tests:
+            if self.__testing_functions != []:
+                for function in self.__testing_functions:
+                    self.results[test] = {function.name: [function.test(test) for _ in range(self.__iters)]}
             else:
-                self.results.update({test: {"": ["" for _ in range(iters)]}})
+                self.results[test] = {"": ["" for _ in range(self.__iters)]}
 
     def get_results(self) -> dict:
         return self.results
 
 
-class ResultTable:
-    def __init__(self, iters: int, results: dict[str: dict[str: list[TestResult]]]) -> None:
-        self.__iters = iters
-        self.__results = results
-    
-    def create_console_table(self) -> Table:
-        table = Table()
-        table.add_column("Tests.")
-        table.add_column("Functions.")
-        for i in range(1, self.__iters+1):
-            table.add_column(f"Iteration {i}.")
-        
-        if self.__iters > 1:
-            table.add_column("Average.")
-        for test, function_names in self.__results.items():
-            for name, values in function_names.items():
-                row = (
-                    test,
-                    name,
-                    *(str(value) for value in values),
-                )
 
-                if self.__iters > 1:
-                    row = (
-                        *row,
-                        str(self.__get_average(values))
-                    )
-
-                table.add_row(*row)
-
-        return table
-
-    def __get_average(self, results: list[TestResult]) -> TestResult:
-        sum_ = 0
-        for result in results:
-            sum_ += result.result
-        return sum_/len(results)
 
 def main():
-    cliManager = CLI()
+    CliManager = CLI()
 
-    tester = Tester(cliManager.get_tests())
-    tester.import_script(cliManager.module)
-    tester.make_tests(cliManager.iters)
+    tester = Tester(CliManager.get_tests(), CliManager.iters)
+    tester.import_script(CliManager.module)
+    tester.make_tests()
 
-    table = ResultTable(cliManager.iters, tester.get_results()).create_console_table()
+    table: BaseResultTable = create_result_table(
+        CliManager.iters,
+        tester.get_results(),
+        CliManager.save_to_csv,
+        CliManager.path_to_csv
+        )
+    
+    table.show()
 
-    cliManager.show_table(table)
 
 if __name__ == "__main__":
     main()
