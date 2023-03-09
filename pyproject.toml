@@ -6,6 +6,16 @@ authors = ["InternetStalker <internetstalcker@yandex.ru>"]
 license = "MIT"
 readme = "README.md"
 packages = [{include = "function_measurer"}]
+keywords = ["measurance", "perfomance", "memory", "tests"]
+homepage = "https://github.com/InternetStalker/function_measurer"
+documentation = "https://github.com/InternetStalker/function_measurer/blob/master/README.md"
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities"
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"
