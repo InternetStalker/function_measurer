@@ -5,7 +5,7 @@ description = "Python utility for compairing functions and other callable object
 authors = ["InternetStalker <internetstalcker@yandex.ru>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "function_measurer"}]
+packages = [{include = "measurer"}]
 keywords = ["measurance", "perfomance", "memory", "tests"]
 homepage = "https://github.com/InternetStalker/function_measurer"
 documentation = "https://github.com/InternetStalker/function_measurer/blob/master/README.md"
