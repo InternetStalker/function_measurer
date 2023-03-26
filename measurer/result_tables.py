@@ -7,6 +7,7 @@ from rich.console import Console
 from abc import ABC, abstractmethod
 
 from . import TestResult
+from .args import Arguments
 
 
 class AbstractResultTable(ABC):
@@ -114,17 +115,15 @@ class CsvResultTable(BaseResultTable):
 
 
 def create_result_table(
-    iters: int,
-    results: dict[str: dict[str: list[TestResult]]],
-    save_to_csv: bool,
-    path_to_csv: pathlib.Path
+        results: dict[str: dict[str: list[TestResult]]],
+        arguments: Arguments
     ) -> BaseResultTable:
-    if save_to_csv:
-        table = CsvResultTable(iters, results, path_to_csv)
+    if arguments.save_to_csv:
+        table = CsvResultTable(arguments.iters, results, arguments.path_to_csv)
         table.create_table()
 
     else:
-        table = ConsoleResultTable(iters, results)
+        table = ConsoleResultTable(arguments.iters, results)
         table.create_table()
     
     return table
