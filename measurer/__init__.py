@@ -78,7 +78,7 @@ class MeasureContextTime(AbstactTestInterface):
         return super().__exit__(_, __, ___)
     
     def test(self) -> TestResult:
-        return TestResult((self._end - self._start), "bytes")
+        return TestResult((self._end - self._start), "sec")
 
 
 class MeasureSize(AbstactTestInterface):
