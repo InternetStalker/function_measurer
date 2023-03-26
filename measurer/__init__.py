@@ -33,13 +33,13 @@ class TestResult:
         return sum(self._results)/len(self._results)
 
 
-class AbstartTestInterface(ABC):
+class AbstactTestInterface(ABC):
     @abstractmethod
     def test(self) -> TestResult:
         pass
 
 
-class MeasureTime(AbstartTestInterface):
+class MeasureTime(AbstactTestInterface):
     """
     A decorator using for measuring the time perfomance of callable objects.
     Gives the result in fractional seconds. Uses time.perf_counter for measuring.
@@ -69,7 +69,7 @@ class MeasureTime(AbstartTestInterface):
         return end - start
 
 
-class MeasureContextTime(AbstartTestInterface):
+class MeasureContextTime(AbstactTestInterface):
     def __enter__(self) -> None:
         self._start = time.perf_counter()
 
@@ -81,6 +81,6 @@ class MeasureContextTime(AbstartTestInterface):
         return TestResult((self._end - self._start), "bytes")
 
 
-class MeasureSize(AbstartTestInterface):
+class MeasureSize(AbstactTestInterface):
     def __init__(self, obj: typing.Any) -> None:
         pass
