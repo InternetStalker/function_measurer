@@ -38,6 +38,11 @@ class AbstartTestInterface(ABC):
 
 
 class MeasureTime(AbstartTestInterface):
+    """
+    A decorator using for measuring the time perfomance of callable objects.
+    Gives the result in fractional seconds. Uses time.perf_counter for measuring.
+    Doesn't have any side effects on measuring callable. The callable is able for common use.
+    """
     def __init__(self, iters: int, *args, **kwds) -> None:
         self._iters = iters
         self._args: typing.Any = args
