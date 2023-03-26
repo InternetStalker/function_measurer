@@ -8,17 +8,15 @@ from .tester import Tester
 
 
 def main():
-    argumets = parse_cli_args()
+    arguments = parse_cli_args()
 
-    tester = Tester(argumets.iters)
-    tester.import_script(argumets.module)
+    tester = Tester(arguments.iters)
+    tester.import_script(arguments.module)
     tester.make_tests()
 
     table: BaseResultTable = create_result_table(
-        argumets.iters,
         tester.get_results(),
-        argumets.save_to_csv,
-        argumets.path_to_csv
+        arguments
         )
     
     table.show()
