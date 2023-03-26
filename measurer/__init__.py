@@ -70,14 +70,15 @@ class MeasureTime(AbstartTestInterface):
 
 
 class MeasureContextTime(AbstartTestInterface):
-    def __init__(self) -> None:
-        pass
-
     def __enter__(self) -> None:
-        pass
+        self._start = time.perf_counter()
 
-    def __exit__(self, _, __, ___) -> None:
-        pass
+    def __exit__(self, _, __, ___):
+        self._end = time.perf_counter()
+        return super().__exit__(_, __, ___)
+    
+    def test(self) -> TestResult:
+        return TestResult((self._end - self._start), "bytes")
 
 
 class MeasureSize(AbstartTestInterface):
