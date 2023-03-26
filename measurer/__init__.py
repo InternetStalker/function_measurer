@@ -6,6 +6,8 @@ import typing
 
 
 from abc import ABC, abstractmethod
+from functools import wraps
+
 
 class TestResult:
     def __init__(self, results: typing.Iterable[int | float], unit: str) -> None:        
@@ -51,7 +53,7 @@ class MeasureTime(AbstartTestInterface):
 
     def __call__(self, function: typing.Callable) -> MeasureTime:
         self._function = function
-        self.__call__ = lambda *args, **kwds: function(*args, **kwds)
+        self.__call__ = wraps(function)(lambda *args, **kwds: function(*args, **kwds))
         return self
     
     def test(self) -> TestResult:
