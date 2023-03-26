@@ -26,11 +26,6 @@ class CLI:
             type = int,
             help = "How many times module will be tested."
             )
-        argparser.add_argument(
-            "tests",
-            choices = CLI.possible_tests,
-            help = "Tests those measurer should do with given module.",
-            )
         
         argparser.add_argument(
             "--csv",
