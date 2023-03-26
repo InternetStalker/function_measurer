@@ -1,24 +1,24 @@
 from __future__ import annotations
 
 from .result_tables import create_result_table, BaseResultTable
-from .cli import CLI
+from .args import parse_cli_args
 from .tester import Tester
 
 
 
 
 def main():
-    CliManager = CLI()
+    argumets = parse_cli_args()
 
-    tester = Tester(CliManager.get_tests(), CliManager.iters)
-    tester.import_script(CliManager.module)
+    tester = Tester(argumets.iters)
+    tester.import_script(argumets.module)
     tester.make_tests()
 
     table: BaseResultTable = create_result_table(
-        CliManager.iters,
+        argumets.iters,
         tester.get_results(),
-        CliManager.save_to_csv,
-        CliManager.path_to_csv
+        argumets.save_to_csv,
+        argumets.path_to_csv
         )
     
     table.show()

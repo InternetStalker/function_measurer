@@ -3,6 +3,9 @@ import argparse
 import pathlib
 
 
+possible_tests = ("runtime", "memory")
+
+
 class Arguments:
     def __init__(self, module: str, iters: int, path_to_csv: str | None) -> None:
         self._module: pathlib.Path = pathlib.Path(module)
@@ -35,35 +38,31 @@ class Arguments:
         return bool(self._path_to_csv)
 
 
-class CLI:
-    possible_tests = ["runtime", "memory"]
 
-    def __init__(self) -> None:
-        argparser = argparse.ArgumentParser(
-            prog = "tester",
-            description = "Program for testing python modules.",
-            fromfile_prefix_chars = "@"
-            )
-        argparser.add_argument(
-            "module",
-            type = str,
-            help = "Given module for testing."
-            )
-        argparser.add_argument(
-            "iters",
-            type = int,
-            help = "How many times module will be tested."
-            )
-        
-        argparser.add_argument(
-            "--csv",
-            help = "Path to csv file where results would be saved.",
+def parse_cli_args() -> Arguments:
+    argparser = argparse.ArgumentParser(
+        prog = "tester",
+        description = "Program for testing python modules.",
+        fromfile_prefix_chars = "@"
         )
 
-        arguments = argparser.parse_args()
+    argparser.add_argument(
+        "module",
+        type = str,
+        help = "Given module for testing."
+        )
 
-        Arguments(arguments.module, arguments.iters, arguments.csv)
+    argparser.add_argument(
+        "iters",
+        type = int,
+        help = "How many times module will be tested."
+        )
+    
+    argparser.add_argument(
+        "--csv",
+        help = "Path to csv file where results would be saved.",
+        )
 
+    arguments = argparser.parse_args()
 
-    def get_tests(self) -> list[str] | str:
-        return self.tests
+    return Arguments(arguments.module, arguments.iters, arguments.csv)
