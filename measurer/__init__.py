@@ -83,4 +83,26 @@ class MeasureContextTime(AbstactTestInterface):
 
 class MeasureSize(AbstactTestInterface):
     def __init__(self, obj: typing.Any) -> None:
-        pass
+        self._obj = obj
+    
+    def test(self) -> TestResult:
+        return TestResult(self._get_size(self._obj), "bytes")
+
+    def _get_size(self, obj: typing.Any, seen: set | None = None) -> int:
+        if seen is None:
+            seen = set()
+        if obj_id := id(obj) in seen:
+            return 0
+        seen.add(obj_id)
+
+        size = sys.getsizeof(obj)
+        if isinstance(obj, dict):
+            size += sum((self._get_size(v, seen) for v in obj.values()))
+            size += sum((self._get_size(k, seen) for k in obj.keys()))
+        elif hasattr(obj, '__dict__'):
+            size += self._get_size(obj.__dict__, seen)
+
+        elif hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes, bytearray)):
+            size += sum((self._get_size(i, seen) for i in obj))
+
+        return size
