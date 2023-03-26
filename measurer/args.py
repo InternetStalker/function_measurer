@@ -60,7 +60,7 @@ def parse_cli_args() -> Arguments:
     
     argparser.add_argument(
         "--csv",
-        help = "Path to csv file where results would be saved.",
+        help = "Path to csv file where results will be saved.",
         )
 
     arguments = argparser.parse_args()
