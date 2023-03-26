@@ -50,7 +50,16 @@ class MeasureTime(AbstartTestInterface):
         return self
     
     def test(self) -> TestResult:
-        return TestResult(())
+        return TestResult(
+            (self._measure_perfomance() for _ in range(self._iters)),
+            "sec"
+            )
+    
+    def _measure_perfomance(self) -> float:
+        start = time.perf_counter()
+        self._function()
+        end = time.perf_counter()
+        return end - start
 
 
 class MeasureContextTime(AbstartTestInterface):
