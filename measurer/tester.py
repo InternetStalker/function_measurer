@@ -22,13 +22,8 @@ class Tester:
             if isinstance(getattr(script, name), AbstactTestInterface):
                 self._testing_functions.append(getattr(script, name))
 
-    def do_tests(self) -> None:
-        self.results: dict[str: dict[str: TestResult]] = {}
-        if self._testing_functions != []:
-            for function in self._testing_functions:
-                self.results[function.test().test_mode] = {function.name: [function.test() for _ in range(self.__iters)]}
-        else:
-            self.results[""] = {"": TestResult([0], "")}
+    def do_tests(self) -> list[TestResult]:
+        return [func.test() for func in self._testing_functions]
 
     def get_results(self) -> dict:
         return self.results
