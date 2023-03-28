@@ -47,6 +47,10 @@ class TestResult:
     @property
     def test_mode(self) -> str:
         return self._test_mode
+    
+    @property
+    def iters(self) -> int:
+        return len(self._results)
 
 
 class AbstactTestInterface(ABC):
