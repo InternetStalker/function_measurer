@@ -12,7 +12,7 @@ def main():
 
     tester = Tester(arguments.iters)
     tester.import_script(arguments.module)
-    tester.make_tests()
+    tester.do_tests()
 
     table: BaseResultTable = create_result_table(
         tester.get_results(),

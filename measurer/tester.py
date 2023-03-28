@@ -25,7 +25,7 @@ class Tester:
             if isinstance(getattr(script, name), AbstactTestInterface):
                 self.__testing_functions.append(getattr(script, name))
 
-    def make_tests(self) -> None:
+    def do_tests(self) -> None:
         self.results: dict[str: dict[str: list[TestResult]]] = {}
         for test in self.__tests:
             if self.__testing_functions != []:
