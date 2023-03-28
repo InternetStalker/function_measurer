@@ -7,24 +7,16 @@ possible_tests = ("runtime", "memory")
 
 
 class Arguments:
-    def __init__(self, module: str, iters: int, path_to_csv: str | None) -> None:
+    def __init__(self, module: str, path_to_csv: str | None) -> None:
         self._module: pathlib.Path = pathlib.Path(module)
-        self._iters: int = iters
         self._path_to_csv: pathlib.Path(path_to_csv) if path_to_csv is not None else None
 
         if not self._module.exists():
             raise FileNotFoundError(f"File doesn't exists. Path: {self.module}")
-        
-        if self._iters < 1:
-            raise ValueError("Iters argument must be over 1")
     
     @property
     def module(self) -> pathlib.Path:
         return self._module
-    
-    @property
-    def iters(self) -> int:
-        return self._iters
     
     @property
     def path_to_csv(self) -> pathlib.Path:
@@ -52,12 +44,6 @@ def parse_cli_args() -> Arguments:
         help = "Given module for testing."
         )
 
-    argparser.add_argument(
-        "iters",
-        type = int,
-        help = "How many times module will be tested."
-        )
-    
     argparser.add_argument(
         "--csv",
         help = "Path to csv file where results will be saved.",
