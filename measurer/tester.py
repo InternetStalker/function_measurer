@@ -6,9 +6,6 @@ from importlib import import_module, invalidate_caches
 from . import TestResult, AbstactTestInterface
 class Tester:
     def __init__(self) -> None:
-        if not isinstance(tests, list):
-            tests = [tests]
-
         self.__testing_functions: list = []
 
     def import_script(self, path_to_script: pathlib.Path) -> None:
@@ -27,12 +24,11 @@ class Tester:
 
     def do_tests(self) -> None:
         self.results: dict[str: dict[str: list[TestResult]]] = {}
-        for test in self.__tests:
-            if self.__testing_functions != []:
-                for function in self.__testing_functions:
-                    self.results[test] = {function.name: [function.test() for _ in range(self.__iters)]}
-            else:
-                self.results[test] = {"": ["" for _ in range(self.__iters)]}
+        if self.__testing_functions != []:
+            for function in self.__testing_functions:
+                self.results[test] = {function.name: [function.test() for _ in range(self.__iters)]}
+        else:
+            self.results[test] = {"": ["" for _ in range(self.__iters)]}
 
     def get_results(self) -> dict:
         return self.results
