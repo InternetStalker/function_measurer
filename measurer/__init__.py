@@ -5,7 +5,7 @@ import time
 import typing
 
 
-from abc import ABC, abstractmethod, abstractproperty
+from abc import ABC, abstractmethod
 from functools import wraps
 
 
