@@ -5,7 +5,7 @@ import time
 import typing
 
 
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, abstractproperty
 from functools import wraps
 
 
@@ -37,6 +37,10 @@ class AbstactTestInterface(ABC):
     @abstractmethod
     def test(self) -> TestResult:
         pass
+    
+    @abstractproperty
+    def test_mode(self) -> typing.LiteralString:
+        pass
 
 
 class MeasureTime(AbstactTestInterface):
@@ -55,6 +59,10 @@ class MeasureTime(AbstactTestInterface):
         self._function = function
         self.__call__ = wraps(function)(lambda *args, **kwds: function(*args, **kwds))
         return self
+
+    @property
+    def test_mode(self) -> typing.LiteralString:
+        return "runtime"
     
     def test(self) -> TestResult:
         return TestResult(
@@ -76,6 +84,10 @@ class MeasureContextTime(AbstactTestInterface):
     def __exit__(self, _, __, ___):
         self._end = time.perf_counter()
         return super().__exit__(_, __, ___)
+
+    @property
+    def test_mode(self) -> typing.LiteralString:
+        return "context runtime"
     
     def test(self) -> TestResult:
         return TestResult((self._end - self._start), "sec")
@@ -84,6 +96,10 @@ class MeasureContextTime(AbstactTestInterface):
 class MeasureSize(AbstactTestInterface):
     def __init__(self, obj: typing.Any) -> None:
         self._obj = obj
+
+    @property
+    def test_mode(self) -> typing.LiteralString:
+        return "memory"
     
     def test(self) -> TestResult:
         return TestResult(self._get_size(self._obj), "bytes")
