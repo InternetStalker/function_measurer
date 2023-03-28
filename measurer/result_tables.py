@@ -22,6 +22,7 @@ class AbstractResultTable(ABC):
 
 class BaseResultTable(AbstractResultTable):
     def __init__(self, results: list[TestResult]) -> None:
+        self._iters: int = max((res.iters for res in results))
         self._results = results
     
     def create_table(self) -> None:
@@ -41,21 +42,23 @@ class ConsoleResultTable(BaseResultTable):
         
         if self._iters > 1:
             self.__table.add_column("Average.")
-        for test, function_names in self._results.items():
-            for name, values in function_names.items():
-                row = (
-                    test,
-                    name,
-                    *(str(value) for value in values),
-                )
+        for result in self._results:
+            res = []
+            for i in range(self._iters):
+                try:
+                    res.append(result[i])
+                except IndexError:
+                    res.append("No data.")
+            row = [
+                result.test_mode,
+                result.tested_name,
+                res,
+            ]
 
-                if self._iters > 1:
-                    row = (
-                        *row,
-                        str(self._get_average(values))
-                    )
+            if self._iters > 1:
+                row.append(str(result.average))
 
-                self.__table.add_row(*row)
+            self.__table.add_row(*row)
 
     
     def show(self) -> None:
@@ -66,11 +69,10 @@ class ConsoleResultTable(BaseResultTable):
 class CsvResultTable(BaseResultTable):
     def __init__(
         self,
-        iters: int,
-        results: dict[str: dict[str: list[TestResult]]],
+        results: list[TestResult],
         path_to_csv: pathlib.Path
         ) -> None:
-        super().__init__(iters, results)
+        super().__init__(results)
         self._path_to_csv = path_to_csv
 
     def create_table(self) -> None:
