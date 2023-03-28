@@ -21,8 +21,7 @@ class AbstractResultTable(ABC):
 
 
 class BaseResultTable(AbstractResultTable):
-    def __init__(self, iters: int, results: dict[str: dict[str: list[TestResult]]]) -> None:
-        self._iters = iters
+    def __init__(self, results: list[TestResult]) -> None:
         self._results = results
     
     def create_table(self) -> None:
@@ -30,12 +29,6 @@ class BaseResultTable(AbstractResultTable):
     
     def show(self) -> None:
         return super().show()
-
-    def _get_average(self, results: list[TestResult]) -> TestResult:
-        sum_ = 0
-        for result in results:
-            sum_ += result.result
-        return sum_/len(results)
 
 
 class ConsoleResultTable(BaseResultTable):
