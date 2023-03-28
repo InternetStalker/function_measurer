@@ -29,10 +29,6 @@ class TestResult:
             raise TypeError("Test_mode should be str")
 
     @property
-    def results(self) -> int | float:
-        return copy(self._results)
-    
-    @property
     def unit(self) -> str:
         return self._unit
 
@@ -51,6 +47,9 @@ class TestResult:
     @property
     def iters(self) -> int:
         return len(self._results)
+    
+    def __getitem__(self, key: int | slice) -> list[str] | str:
+        return self._results[key]
 
 
 class AbstactTestInterface(ABC):
