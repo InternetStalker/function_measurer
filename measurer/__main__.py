@@ -10,7 +10,7 @@ from .tester import Tester
 def main():
     arguments = parse_cli_args()
 
-    tester = Tester(arguments.iters)
+    tester = Tester()
     tester.import_script(arguments.module)
     tester.do_tests()
 
