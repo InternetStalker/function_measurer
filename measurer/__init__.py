@@ -10,15 +10,23 @@ from functools import wraps
 
 
 class TestResult:
-    def __init__(self, results: typing.Iterable[int | float], unit: str) -> None:        
+    def __init__(self, results: typing.Iterable[int | float | None], unit: str, tested_name: str, test_mode: str) -> None:        
         self._results: tuple[int | float] = tuple(results)
         self._unit: str = unit
+        self._tested_name: str = tested_name
+        self._test_mode: str = test_mode
 
-        if not all(map(results, lambda item: isinstance(item, (int, float)))):
-            raise TypeError("Results should be int or float")
+        if not all(map(results, lambda item: isinstance(item, (int, float, None)))):
+            raise TypeError("Results should be int, float or None")
 
         if not isinstance(unit, str):
             raise TypeError("Unit should be str")
+        
+        if not isinstance(tested_name, str):
+            raise TypeError("Tested_name should be str")
+        
+        if not isinstance(test_mode, str):
+            raise TypeError("Test_mode should be str")
 
     @property
     def results(self) -> int | float:
@@ -31,15 +39,19 @@ class TestResult:
     @property
     def average(self) -> int | float:
         return sum(self._results)/len(self._results)
+    
+    @property
+    def tested_name(self) -> str:
+        return self._tested_name
+
+    @property
+    def test_mode(self) -> str:
+        return self._test_mode
 
 
 class AbstactTestInterface(ABC):
     @abstractmethod
     def test(self) -> TestResult:
-        pass
-    
-    @abstractproperty
-    def test_mode(self) -> typing.LiteralString:
         pass
 
 
@@ -59,10 +71,6 @@ class MeasureTime(AbstactTestInterface):
         self._function = function
         self.__call__ = wraps(function)(lambda *args, **kwds: function(*args, **kwds))
         return self
-
-    @property
-    def test_mode(self) -> typing.LiteralString:
-        return "runtime"
     
     def test(self) -> TestResult:
         return TestResult(
@@ -84,10 +92,6 @@ class MeasureContextTime(AbstactTestInterface):
     def __exit__(self, _, __, ___):
         self._end = time.perf_counter()
         return super().__exit__(_, __, ___)
-
-    @property
-    def test_mode(self) -> typing.LiteralString:
-        return "context runtime"
     
     def test(self) -> TestResult:
         return TestResult((self._end - self._start), "sec")
@@ -96,10 +100,6 @@ class MeasureContextTime(AbstactTestInterface):
 class MeasureSize(AbstactTestInterface):
     def __init__(self, obj: typing.Any) -> None:
         self._obj = obj
-
-    @property
-    def test_mode(self) -> typing.LiteralString:
-        return "memory"
     
     def test(self) -> TestResult:
         return TestResult(self._get_size(self._obj), "bytes")

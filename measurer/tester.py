@@ -26,7 +26,7 @@ class Tester:
         self.results: dict[str: dict[str: TestResult]] = {}
         if self._testing_functions != []:
             for function in self._testing_functions:
-                self.results[function.test_mode] = {function.name: [function.test() for _ in range(self.__iters)]}
+                self.results[function.test().test_mode] = {function.name: [function.test() for _ in range(self.__iters)]}
         else:
             self.results[""] = {"": TestResult([0], "")}
 
