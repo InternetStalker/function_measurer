@@ -24,7 +24,3 @@ class Tester:
 
     def do_tests(self) -> list[TestResult]:
         return [func.test() for func in self._testing_functions]
-
-    def get_results(self) -> dict:
-        return self.results
-
