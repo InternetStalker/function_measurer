@@ -33,7 +33,7 @@ class BaseResultTable(AbstractResultTable):
 
 
 class ConsoleResultTable(BaseResultTable):
-    def create_table(self) -> Table:
+    def create_table(self) -> None:
         self.__table = Table()
         self.__table.add_column("Tests.")
         self.__table.add_column("Functions.")
@@ -87,19 +87,24 @@ class CsvResultTable(BaseResultTable):
                 "Average."
             )
 
-        for test, function_names in self._results.items():
+        for result in self._results:
             self._rows = []
-            for name, values in function_names.items():
-                row = {
-                    "Tests.": test,
-                    "Functions.": name,
-                    **{f"Iteration {i}.": str(value) for i, value in enumerate(values, start=1)},
-                }
+            res = []
+            for i in range(self._iters):
+                try:
+                    res.append(result[i])
+                except IndexError:
+                    res.append("No data.")
+            row = {
+                "Tests.": result.test_mode,
+                "Functions.": result.tested_name,
+                **{f"Iteration {i}.": str(value) for i, value in enumerate(res, start=1)},
+            }
 
-                if self._iters > 1:
-                    row["Average."] = str(self._get_average(values))
+            if self._iters > 1:
+                row["Average."] = str(result.average)
 
-                self._rows.append(row)
+            self._rows.append(row)
 
 
     def show(self) -> None:
@@ -110,15 +115,15 @@ class CsvResultTable(BaseResultTable):
 
 
 def create_result_table(
-        results: dict[str: dict[str: list[TestResult]]],
+        results: list[TestResult],
         arguments: Arguments
     ) -> BaseResultTable:
     if arguments.save_to_csv:
-        table = CsvResultTable(arguments.iters, results, arguments.path_to_csv)
+        table = CsvResultTable(results, arguments.path_to_csv)
         table.create_table()
 
     else:
-        table = ConsoleResultTable(arguments.iters, results)
+        table = ConsoleResultTable(results)
         table.create_table()
     
     return table

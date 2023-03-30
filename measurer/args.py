@@ -9,7 +9,7 @@ possible_tests = ("runtime", "memory")
 class Arguments:
     def __init__(self, module: str, path_to_csv: str | None) -> None:
         self._module: pathlib.Path = pathlib.Path(module)
-        self._path_to_csv: pathlib.Path(path_to_csv) if path_to_csv is not None else None
+        self._path_to_csv: pathlib.Path | None = pathlib.Path(path_to_csv) if path_to_csv is not None else None
 
         if not self._module.exists():
             raise FileNotFoundError(f"File doesn't exists. Path: {self.module}")
@@ -23,7 +23,7 @@ class Arguments:
         if self.path_to_csv is None:
             raise TypeError("There is no csv provided")
 
-        return self._path_to_csv
+        return self._path_to_csv # type: ignore
 
     @property
     def save_to_csv(self) -> bool:
@@ -51,4 +51,4 @@ def parse_cli_args() -> Arguments:
 
     arguments = argparser.parse_args()
 
-    return Arguments(arguments.module, arguments.iters, arguments.csv)
+    return Arguments(arguments.module, arguments.csv)
