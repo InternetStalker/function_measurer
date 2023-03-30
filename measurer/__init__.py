@@ -1,5 +1,4 @@
 from __future__ import annotations
-from copy import copy
 import sys
 import time
 import typing
@@ -11,12 +10,12 @@ from functools import wraps
 
 class TestResult:
     def __init__(self, results: typing.Iterable[int | float | None], unit: str, tested_name: str, test_mode: str) -> None:        
-        self._results: tuple[int | float] = tuple(results)
+        self._results: tuple[int | float | None] = tuple(results)
         self._unit: str = unit
         self._tested_name: str = tested_name
         self._test_mode: str = test_mode
 
-        if not all(map(results, lambda item: isinstance(item, (int, float, None)))):
+        if not all(map(results, lambda item: isinstance(item, (int, float, None)))): # type: ignore
             raise TypeError("Results should be int, float or None")
 
         if not isinstance(unit, str):
@@ -34,7 +33,10 @@ class TestResult:
 
     @property
     def average(self) -> int | float:
-        return sum(self._results)/len(self._results)
+        if None in self._results:
+            raise Exception("Can't count average for containing None results")
+        
+        return sum(self._results)/len(self._results) # type: ignore
     
     @property
     def tested_name(self) -> str:
@@ -48,8 +50,8 @@ class TestResult:
     def iters(self) -> int:
         return len(self._results)
     
-    def __getitem__(self, key: int | slice) -> list[str] | str:
-        return self._results[key]
+    def __getitem__(self, key: int | slice) -> int | float | list[int | float]:
+        return self._results[key] # type: ignore
 
 
 class AbstactTestInterface(ABC):
@@ -78,12 +80,14 @@ class MeasureTime(AbstactTestInterface):
     def test(self) -> TestResult:
         return TestResult(
             (self._measure_perfomance() for _ in range(self._iters)),
-            "sec"
+            "sec",
+            self._function.__name__, #type: ignore
+            "runtime"
             )
     
     def _measure_perfomance(self) -> float:
         start = time.perf_counter()
-        self._function()
+        self._function() #type: ignore
         end = time.perf_counter()
         return end - start
 
@@ -94,10 +98,10 @@ class MeasureContextTime(AbstactTestInterface):
 
     def __exit__(self, _, __, ___):
         self._end = time.perf_counter()
-        return super().__exit__(_, __, ___)
+        return super().__exit__(_, __, ___) # type: ignore
     
     def test(self) -> TestResult:
-        return TestResult((self._end - self._start), "sec")
+        return TestResult((self._end - self._start,), "sec", "context", "runtime")
 
 
 class MeasureSize(AbstactTestInterface):
@@ -105,7 +109,7 @@ class MeasureSize(AbstactTestInterface):
         self._obj = obj
     
     def test(self) -> TestResult:
-        return TestResult(self._get_size(self._obj), "bytes")
+        return TestResult((self._get_size(self._obj),), "bytes", self._obj.__name__, "memory ")
 
     def _get_size(self, obj: typing.Any, seen: set | None = None) -> int:
         if seen is None:
