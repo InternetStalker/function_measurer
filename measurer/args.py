@@ -3,9 +3,6 @@ import argparse
 import pathlib
 
 
-possible_tests = ("runtime", "memory")
-
-
 class Arguments:
     def __init__(self, module: str, path_to_csv: str | None) -> None:
         self._module: pathlib.Path = pathlib.Path(module)
