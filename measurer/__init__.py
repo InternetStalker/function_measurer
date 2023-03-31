@@ -11,7 +11,6 @@ from functools import wraps
 class TestResult:
     def __init__(self, results: typing.Iterable[int | float], unit: str, tested_name: str, test_mode: str) -> None:        
         self._results: tuple[int | float] = tuple(results)
-        print(self._results, type(self._results))
         self._unit: str = unit
         self._tested_name: str = tested_name
         self._test_mode: str = test_mode
