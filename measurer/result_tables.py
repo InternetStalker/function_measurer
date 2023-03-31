@@ -6,7 +6,7 @@ from rich.table import Table
 from rich.console import Console
 from abc import ABC, abstractmethod
 
-from . import TestResult
+from .interface import TestResult
 from .args import Arguments
 
 

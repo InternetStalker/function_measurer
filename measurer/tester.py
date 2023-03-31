@@ -3,7 +3,7 @@ import pathlib
 
 from importlib import import_module, invalidate_caches
 
-from . import TestResult, AbstactTestInterface
+from .interface import TestResult, AbstactTestInterface
 class Tester:
     def __init__(self) -> None:
         self._testing_functions: list[AbstactTestInterface] = []
