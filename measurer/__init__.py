@@ -94,9 +94,9 @@ class MeasureContextTime(AbstactTestInterface):
     def __enter__(self) -> None:
         self._start = time.perf_counter()
 
-    def __exit__(self, _, __, ___):
+    def __exit__(self, exc_type, exc_value, traceback):
         self._end = time.perf_counter()
-        return super().__exit__(_, __, ___) # type: ignore
+        return not exc_type
     
     def test(self) -> TestResult:
         return TestResult((self._end - self._start,), "sec", "context", "runtime")
