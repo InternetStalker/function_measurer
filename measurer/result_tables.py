@@ -46,13 +46,13 @@ class ConsoleResultTable(BaseResultTable):
             res = []
             for i in range(self._iters):
                 try:
-                    res.append(result[i])
+                    res.append(str(result[i]))
                 except IndexError:
                     res.append("No data.")
             row = [
                 result.test_mode,
                 result.tested_name,
-                res,
+                *res,
             ]
 
             if self._iters > 1:
@@ -92,7 +92,7 @@ class CsvResultTable(BaseResultTable):
             res = []
             for i in range(self._iters):
                 try:
-                    res.append(result[i])
+                    res.append(str(result[i]))
                 except IndexError:
                     res.append("No data.")
             row = {
