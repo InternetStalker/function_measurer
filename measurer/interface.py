@@ -90,6 +90,11 @@ class MeasureTime(AbstactTestInterface):
 
 
 class MeasureContextTime(AbstactTestInterface):
+    """
+    A context manager that measures the perfomance time of context expression.
+    Can't be used in any other ways. Doesn't catch any exceptions.
+    Uses time.perf_counter for measuring. Returns the result in fractional seconds.
+    """
     def __enter__(self) -> None:
         self._start = time.perf_counter()
 
@@ -102,7 +107,12 @@ class MeasureContextTime(AbstactTestInterface):
 
 
 class MeasureSize(AbstactTestInterface):
+    """
+    A class that measures the memory taken by the object. Uses sys.getsizeof for measuring.
+    Returns result in bytes. Needs to be saved in a variable.
+    """
     def __init__(self, obj: typing.Any) -> None:
+
         self._obj = obj
     
     def test(self) -> TestResult:
