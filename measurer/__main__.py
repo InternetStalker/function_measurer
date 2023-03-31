@@ -1,4 +1,5 @@
 from __future__ import annotations
+import sys
 
 from .result_tables import create_result_table, BaseResultTable
 from .args import parse_cli_args
@@ -8,7 +9,12 @@ from .tester import Tester
 
 
 def main():
-    arguments = parse_cli_args()
+    try:
+        arguments = parse_cli_args()
+    
+    except FileNotFoundError as error:
+        print(error)
+        sys.exit(1)
 
     tester = Tester()
     tester.import_script(arguments.module)
