@@ -9,14 +9,15 @@ from functools import wraps
 
 
 class TestResult:
-    def __init__(self, results: typing.Iterable[int | float | None], unit: str, tested_name: str, test_mode: str) -> None:        
-        self._results: tuple[int | float | None] = tuple(results)
+    def __init__(self, results: typing.Iterable[int | float], unit: str, tested_name: str, test_mode: str) -> None:        
+        self._results: tuple[int | float] = tuple(results)
+        print(self._results, type(self._results))
         self._unit: str = unit
         self._tested_name: str = tested_name
         self._test_mode: str = test_mode
 
-        if not all(map(results, lambda item: isinstance(item, (int, float, None)))): # type: ignore
-            raise TypeError("Results should be int, float or None")
+        if not all(map(lambda item: isinstance(item, (int, float)), self._results)):
+            raise TypeError("Results should be int or float.")
 
         if not isinstance(unit, str):
             raise TypeError("Unit should be str")
@@ -33,9 +34,6 @@ class TestResult:
 
     @property
     def average(self) -> int | float:
-        if None in self._results:
-            raise Exception("Can't count average for containing None results")
-        
         return sum(self._results)/len(self._results) # type: ignore
     
     @property
@@ -66,7 +64,7 @@ class MeasureTime(AbstactTestInterface):
     Gives the result in fractional seconds. Uses time.perf_counter for measuring.
     Doesn't have any side effects on measuring callable. The callable is able for common use.
     """
-    def __init__(self, iters: int, *args, **kwds) -> None:
+    def __init__(self, iters: int, *args: typing.Any, **kwds: typing.Any) -> None:
         self._iters = iters
         self._args: typing.Any = args
         self._kwds: dict[str, typing.Any] = kwds
