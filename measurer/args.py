@@ -4,10 +4,6 @@ import pathlib
 import typing
 
 
-class PossibleTests (str, typing.Enum):
-    MEMORY = "memory"
-    RUNTIME = "runtime"
-
 @dataclass(slots=true, frozen=true)
 class Arguments:
     path: pathlib.Path
