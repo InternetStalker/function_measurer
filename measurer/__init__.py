@@ -3,6 +3,11 @@ import sys
 import time
 import typing
 
+
+class PossibleTests (str, typing.Enum):
+    MEMORY = "memory"
+    RUNTIME = "runtime"
+
 class TestResult:
     def __init__(self, result: int | float, unit: str) -> None:
         if not isinstance(result, (int, float)):
