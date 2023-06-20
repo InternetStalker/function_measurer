@@ -55,8 +55,7 @@ class TestRunner:
         self.__args = args
         self.__kwds = kwds
         self.__name = function.__name__
-        self.__test_mode: str = kwds["test_mode"]
-        self.__kwds.pop("test_mode")
+        self.__test_mode: str = kwds.pop("test_mode")
         
     def test(self):
         if self.__test_mode == "runtime":
