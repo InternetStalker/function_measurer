@@ -1,9 +1,12 @@
 from __future__ import annotations
 import argparse
 import pathlib
+import typing
 
 
-possible_tests = ("runtime", "memory")
+class PossibleTests (str, typing.Enum):
+    MEMORY = "memory"
+    RUNTIME = "runtime"
 
 @dataclass(slots=true, frozen=true)
 class Arguments:
