@@ -24,6 +24,7 @@ class TimeUnits(Units):
     MICROSECOND = Unit("μs", 1000)
     MILLISECOND = Unit("ms", 10**6)
     SECOND = Unit("sec", 10**9)
+    MINUTE = Unit("min", 60*10**9)
 
 class MemoryUnits(Units):
     BYTE = Unit("byte", 1)
