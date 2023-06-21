@@ -88,7 +88,7 @@ class TestRunner:
             size += self._get_size(obj.__dict__, seen)
 
         elif hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes, bytearray)):
-            size += sum([self._get_size(i, seen) for i in obj])
+            size += sum((self._get_size(i, seen) for i in obj))
         
         return size
 
