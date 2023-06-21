@@ -4,7 +4,7 @@ import time
 import typing
 
 
-class PossibleTests (str, typing.Enum):
+class TestModes (str, typing.Enum):
     MEMORY = "memory"
     RUNTIME = "runtime"
 
