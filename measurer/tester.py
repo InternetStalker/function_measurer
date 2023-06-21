@@ -171,14 +171,4 @@ class Tester:
                 self._testing_functions.append(getattr(script, name))
 
     def make_tests(self) -> None:
-        self.results: dict[str: dict[str: list[TestResult]]] = {}
-        for test in self._tests:
-            if self._testing_functions != []:
-                for function in self._testing_functions:
-                    self.results[test] = {function.name: [function.test() for _ in range(self._iters)]}
-            else:
-                self.results[test] = {"": ["" for _ in range(self._iters)]}
-
-    def get_results(self) -> dict:
-        return self.results
-
+        ...
