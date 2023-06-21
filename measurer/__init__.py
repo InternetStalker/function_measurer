@@ -10,12 +10,6 @@ class TestModes (str, typing.Enum):
 
 class TestResult:
     def __init__(self, result: int | float, unit: str) -> None:
-        if not isinstance(result, (int, float)):
-            raise Exception("Result should be int or float")
-        
-        if not isinstance(unit, str):
-            raise Exception("Unit should be str")
-        
         self.__result = result
         self.__unit = unit
 
