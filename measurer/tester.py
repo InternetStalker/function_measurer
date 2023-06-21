@@ -30,6 +30,7 @@ class MemoryUnits(Units):
     BIT = Unit("bit", 1)
     BYTE = Unit("B", 8)
     KILOBYTE = Unit("KB", 8000)
+    KIBIBYTE = Unit("KiB", 8192)
 
 class TestResult:
     def __init__(self, result: float, unit: Units) -> None:
