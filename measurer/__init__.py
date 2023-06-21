@@ -24,7 +24,7 @@ class TestResult:
         return self.__result
     
     @property
-    def unit(self) -> str:
+    def unit(self) -> Units:
         return self.__unit
 
     def __str__(self) -> str:
