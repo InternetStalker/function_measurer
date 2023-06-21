@@ -150,9 +150,9 @@ class SetTesting:
 
 class Tester:
     def __init__(self, iters: int) -> None:
-        self.__tests = tests
-        self.__iters = iters
-        self.__testing_functions: list[TestRunner] = []
+        self._tests = tests
+        self._iters = iters
+        self._testing_functions: list[TestRunner] = []
 
     def import_script(self, path_to_script: pathlib.Path) -> None:
         program_folder = pathlib.Path(__file__).parent
@@ -166,16 +166,16 @@ class Tester:
         
         for name in dir(script):
             if isinstance(getattr(script, name), TestRunner):
-                self.__testing_functions.append(getattr(script, name))
+                self._testing_functions.append(getattr(script, name))
 
     def make_tests(self) -> None:
         self.results: dict[str: dict[str: list[TestResult]]] = {}
-        for test in self.__tests:
-            if self.__testing_functions != []:
-                for function in self.__testing_functions:
-                    self.results[test] = {function.name: [function.test() for _ in range(self.__iters)]}
+        for test in self._tests:
+            if self._testing_functions != []:
+                for function in self._testing_functions:
+                    self.results[test] = {function.name: [function.test() for _ in range(self._iters)]}
             else:
-                self.results[test] = {"": ["" for _ in range(self.__iters)]}
+                self.results[test] = {"": ["" for _ in range(self._iters)]}
 
     def get_results(self) -> dict:
         return self.results
