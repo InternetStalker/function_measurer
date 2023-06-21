@@ -55,13 +55,13 @@ class TestRunner:
         self.__args = args
         self.__kwds = kwds
         self.__name = function.__name__
-        self.__test_mode: str = kwds.pop("test_mode")
+        self.__test_mode: TestModes = kwds.pop("test_mode")
         
     def test(self):
-        if self.__test_mode == "runtime":
+        if self.__test_mode == TestModes.RUNTIME:
             return self.__get_runtime()
 
-        elif self.__test_mode == "memory":
+        elif self.__test_mode == TestModes.MEMORY:
             return self.__get_size(self.__function)
     
     def __get_size(self, obj: typing.Any, seen: set | None = None) -> TestResult:
