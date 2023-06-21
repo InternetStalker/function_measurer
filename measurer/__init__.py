@@ -18,12 +18,12 @@ class Units(Unit, Enum):
     BYTE = Unit("byte", 1)
 
 class TestResult:
-    def __init__(self, result: int | float, unit: Units) -> None:
+    def __init__(self, result: float, unit: Units) -> None:
         self.result = result
         self.unit = unit
 
     @property
-    def result(self) -> int | float:
+    def result(self) -> float:
         return self.result
     
     @property
@@ -80,7 +80,7 @@ class TestRunner:
             return TestResult(0, "b")
         seen.add(obj_id)
 
-        size = TestResult(sys.getsizeof(obj), Units.BYTE)
+        size = TestResult(float(sys.getsizeof(obj)), Units.BYTE)
         if isinstance(obj, dict):
             size += sum((self._get_size(v, seen) for v in obj.values()))
             size += sum((self._get_size(k, seen) for k in obj.keys()))
