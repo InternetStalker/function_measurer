@@ -20,7 +20,8 @@ class Units(Unit, Enum):
     pass
 
 class TimeUnits(Units):
-    SEC = Unit("sec", 1)
+    NANOSECOND = Unit("ns", 1)
+    SECOND = Unit("sec", 1*10**9)
 
 class MemoryUnits(Units):
     BYTE = Unit("byte", 1)
