@@ -41,8 +41,8 @@ class TestResult:
     def __str__(self) -> str:
         return f"{self.result}, {self.unit}"
     
-    def __add__(self, res2) -> int:
-        if isinstance(res2, int):
+    def __add__(self, res2: int | float | TestResult) -> TestResult:
+        if isinstance(res2, (int, float)):
             return TestResult(self.result + res2, self.unit)
 
         if res2.unit != self.unit:
@@ -51,10 +51,10 @@ class TestResult:
 
         return TestResult(self.result + res2.result, self.unit)
     
-    def __iadd__(self, res2):
+    def __iadd__(self, res2: int | float | TestResult) -> TestResult:
         return self.__add__(res2)
     
-    def __truediv__(self, res2):
+    def __truediv__(self, res2:  int | float | TestResult) -> TestResult:
         if isinstance(res2, (int, float)):
             return TestResult(self.result / res2, self.unit)
         
@@ -74,7 +74,7 @@ class TestRunner:
         self._name = function.__name__
         self._test_mode = test_mode
         
-    def test(self):
+    def test(self) -> TestResult:
         if self.test_mode == TestModes.RUNTIME:
             return self._get_runtime()
 
@@ -100,7 +100,7 @@ class TestRunner:
         
         return size
 
-    def _get_runtime(self) -> float:
+    def _get_runtime(self) -> TestResult:
         start = time.perf_counter()
         self._function(*self._args, **self._kwds)
         end = time.perf_counter()
@@ -112,7 +112,7 @@ class TestRunner:
         return self._name
     
     @property
-    def arguments(self) -> list[typing.Any]:
+    def arguments(self) -> list[typing.Any, ...]:
         return self._args
     
     @property
@@ -128,7 +128,11 @@ class TestRunner:
 
 
 class SetTesting:
-    def __init__(self, *args, test_mode: TestModes=TestModes.RUNTIME, **kwds) -> None:
+    def __init__(self,
+        *args: typing.Any,
+        test_mode: TestModes=TestModes.RUNTIME,
+        **kwds: dict[str, typing.Any]
+        ) -> None:
         self._args = args
         self._test_mode = test_mode
         self._kwds = kwds
@@ -138,10 +142,7 @@ class SetTesting:
 
 
 class Tester:
-    def __init__(self, tests: list[str] | str, iters: int) -> None:
-        if not isinstance(tests, list):
-            tests = [tests]
-
+    def __init__(self, iters: int) -> None:
         self.__tests = tests
         self.__iters = iters
         self.__testing_functions: list[TestRunner] = []
