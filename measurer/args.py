@@ -3,6 +3,8 @@ import argparse
 import pathlib
 import typing
 
+from dataclass import dataclass 
+
 
 @dataclass(slots=true, frozen=true)
 class Arguments:
