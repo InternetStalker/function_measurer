@@ -16,38 +16,38 @@ class Units(str, Enum):
 
 class TestResult:
     def __init__(self, result: int | float, unit: Units) -> None:
-        self.__result = result
-        self.__unit = unit
+        self.result = result
+        self.unit = unit
 
     @property
     def result(self) -> int | float:
-        return self.__result
+        return self.result
     
     @property
     def unit(self) -> Units:
-        return self.__unit
+        return self.unit
 
     def __str__(self) -> str:
-        return f"{self.__result}, {self.unit}"
+        return f"{self.result}, {self.unit}"
     
     def __add__(self, res2) -> int:
         if isinstance(res2, int):
-            return TestResult(self.__result + res2, self.unit)
+            return TestResult(self.result + res2, self.unit)
 
-        if res2.unit != self.__unit:
+        if res2.unit != self.unit:
             raise TypeError("Tryed to add TestResults with different units")
         
 
-        return TestResult(self.__result + res2.result, self.__unit)
+        return TestResult(self.result + res2.result, self.unit)
     
     def __iadd__(self, res2):
         return self.__add__(res2)
     
     def __truediv__(self, res2):
         if isinstance(res2, (int, float)):
-            return TestResult(self.__result / res2, self.__unit)
+            return TestResult(self.result / res2, self.unit)
         
-        return TestResult(self.__result / res2.result, self.__unit)
+        return TestResult(self.result / res2.result, self.unit)
 
 class TestRunner:
     def __init__(
@@ -57,20 +57,20 @@ class TestRunner:
         *args: typing.Any,
         **kwds: typing.Any
         ) -> None:
-        self.__function = function
-        self.__args = args
-        self.__kwds = kwds
-        self.__name = function.__name__
-        self.__test_mode = test_mode
+        self._function = function
+        self._args = args
+        self._kwds = kwds
+        self._name = function.__name__
+        self._test_mode = test_mode
         
     def test(self):
-        if self.__test_mode == TestModes.RUNTIME:
-            return self.__get_runtime()
+        if self.test_mode == TestModes.RUNTIME:
+            return self._get_runtime()
 
-        elif self.__test_mode == TestModes.MEMORY:
-            return self.__get_size(self.__function)
+        elif self.test_mode == TestModes.MEMORY:
+            return self._get_size(self._function)
     
-    def __get_size(self, obj: typing.Any, seen: set | None = None) -> TestResult:
+    def _get_size(self, obj: typing.Any, seen: set | None = None) -> TestResult:
         if seen is None:
             seen = set()
         if obj_id := id(obj) in seen:
@@ -79,38 +79,38 @@ class TestRunner:
 
         size = TestResult(sys.getsizeof(obj), "b")
         if isinstance(obj, dict):
-            size += sum((self.__get_size(v, seen) for v in obj.values()))
-            size += sum((self.__get_size(k, seen) for k in obj.keys()))
+            size += sum((self._get_size(v, seen) for v in obj.values()))
+            size += sum((self._get_size(k, seen) for k in obj.keys()))
         elif hasattr(obj, '__dict__'):
-            size += self.__get_size(obj.__dict__, seen)
+            size += self._get_size(obj.__dict__, seen)
 
         elif hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes, bytearray)):
-            size += sum([self.__get_size(i, seen) for i in obj])
+            size += sum([self._get_size(i, seen) for i in obj])
         
         return size
 
-    def __get_runtime(self) -> float:
+    def _get_runtime(self) -> float:
         start = time.perf_counter()
-        self.__function(*self.__args, **self.__kwds)
+        self._function(*self._args, **self._kwds)
         end = time.perf_counter()
         runtime =  end - start
         return TestResult(runtime, "sec")
 
     @property
     def name(self) -> str:
-        return self.__name
+        return self._name
     
     @property
     def arguments(self) -> list[typing.Any]:
-        return self.__args
+        return self._args
     
     @property
     def kw_arguments(self) -> dict[str: typing.Any]:
-        return self.__kwds
+        return self._kwds
     
     @property
     def function(self) -> typing.Any:
-        return self.__function
+        return self._function
     
     def __call__(self, *args: typing.Any, **kwds: typing.Any) -> typing.Any:
         return self.function(*args, **kwds)
@@ -118,9 +118,9 @@ class TestRunner:
 
 class SetTesting:
     def __init__(self, *args, test_mode: TestModes=TestModes.RUNTIME, **kwds) -> None:
-        self.__args = args
-        self.__test_mode = test_mode
-        self.__kwds = kwds
+        self._args = args
+        self._test_mode = test_mode
+        self._kwds = kwds
 
     def __call__(self, function) -> TestRunner:
-        return TestRunner(function, self.__test_mode *self.__args, **self.__kwds)
+        return TestRunner(function, self._test_mode *self._args, **self._kwds)
