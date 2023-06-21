@@ -22,7 +22,8 @@ class Units(Unit, Enum):
 class TimeUnits(Units):
     NANOSECOND = Unit("ns", 1)
     MICROSECOND = Unit("μs", 1000)
-    SECOND = Unit("sec", 1*10**9)
+    MILLISECOND = Unit("ms", 10**6)
+    SECOND = Unit("sec", 10**9)
 
 class MemoryUnits(Units):
     BYTE = Unit("byte", 1)
