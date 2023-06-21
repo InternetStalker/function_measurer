@@ -27,7 +27,8 @@ class TimeUnits(Units):
     MINUTE = Unit("min", 60*10**9)
 
 class MemoryUnits(Units):
-    BYTE = Unit("byte", 1)
+    BIT = Unit("bit", 1)
+    BYTE = Unit("byte", 8)
 
 class TestResult:
     def __init__(self, result: float, unit: Units) -> None:
