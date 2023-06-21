@@ -5,14 +5,17 @@ import typing
 
 from enum import Enum
 
+class Unit(NamedTuple):
+    name: str
+    value: int
 
 class TestModes (str, Enum):
     MEMORY = "memory"
     RUNTIME = "runtime"
 
-class Units(str, Enum):
-    sec = "sec"
-    byte = "byte"
+class Units(Unit, Enum):
+    SEC = Unit("sec", 1)
+    BYTE = Unit("byte", 1)
 
 class TestResult:
     def __init__(self, result: int | float, unit: Units) -> None:
@@ -77,7 +80,7 @@ class TestRunner:
             return TestResult(0, "b")
         seen.add(obj_id)
 
-        size = TestResult(sys.getsizeof(obj), "b")
+        size = TestResult(sys.getsizeof(obj), Units.BYTE)
         if isinstance(obj, dict):
             size += sum((self._get_size(v, seen) for v in obj.values()))
             size += sum((self._get_size(k, seen) for k in obj.keys()))
@@ -94,7 +97,7 @@ class TestRunner:
         self._function(*self._args, **self._kwds)
         end = time.perf_counter()
         runtime =  end - start
-        return TestResult(runtime, "sec")
+        return TestResult(runtime, Units.SEC)
 
     @property
     def name(self) -> str:
