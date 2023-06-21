@@ -17,7 +17,12 @@ class TestModes (str, Enum):
     RUNTIME = "runtime"
 
 class Units(Unit, Enum):
+    pass
+
+class TimeUnits(Units):
     SEC = Unit("sec", 1)
+
+class MemoryUnits(Units):
     BYTE = Unit("byte", 1)
 
 class TestResult:
@@ -83,7 +88,7 @@ class TestRunner:
             return TestResult(0, "b")
         seen.add(obj_id)
 
-        size = TestResult(float(sys.getsizeof(obj)), Units.BYTE)
+        size = TestResult(float(sys.getsizeof(obj)), MemoryUnits.BYTE)
         if isinstance(obj, dict):
             size += sum((self._get_size(v, seen) for v in obj.values()))
             size += sum((self._get_size(k, seen) for k in obj.keys()))
@@ -100,7 +105,7 @@ class TestRunner:
         self._function(*self._args, **self._kwds)
         end = time.perf_counter()
         runtime =  end - start
-        return TestResult(runtime, Units.SEC)
+        return TestResult(runtime, RuntimeUnits.SEC)
 
     @property
     def name(self) -> str:
