@@ -2,13 +2,15 @@ from __future__ import annotations
 import pathlib
 import typing
 
+from dataclass import dataclass
 from importlib import import_module, invalidate_caches
 from enum import Enum
 
 from . import TestRunner, TestResult
 
 
-class Unit(typing.NamedTuple):
+@dataclass(slots=True, frozen=True)
+class Unit:
     name: str
     value: int
 
