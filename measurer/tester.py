@@ -35,9 +35,18 @@ class MemoryUnits(Units):
     KIBIBYTE = Unit("KiB", 8192)
 
 class TestResult:
-    def __init__(self, result: float, unit: Units) -> None:
+    def __init__(self, name: str, test_mode: TestModes, result: float, unit: Units) -> None:
+        self._name = name
+        self._test_mode = test_mode
         self._result = result
         self._unit = unit
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    def test_mode(self) -> TestModes:
+        return self.test_mode 
 
     @property
     def result(self) -> float:
@@ -94,7 +103,7 @@ class TestRunner:
         if seen is None:
             seen = set()
         if obj_id := id(obj) in seen:
-            return TestResult(0, "b")
+            return TestResult(self.name, self.test_mode, 0, "b")
         seen.add(obj_id)
 
         size = TestResult(float(sys.getsizeof(obj)), MemoryUnits.BYTE)
@@ -120,6 +129,10 @@ class TestRunner:
     def name(self) -> str:
         return self._name
     
+    @property
+    def test_mode(self) -> TestModes:
+        return self.test_mode
+
     @property
     def arguments(self) -> list[typing.Any, ...]:
         return self._args
