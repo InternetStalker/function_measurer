@@ -50,12 +50,18 @@ class TestResult:
         return TestResult(self.__result / res2.result, self.__unit)
 
 class TestRunner:
-    def __init__(self, function, *args: typing.Any, **kwds: typing.Any) -> None:
+    def __init__(
+        self,
+        function: typing.Any,
+        test_mode: TestModes,
+        *args: typing.Any,
+        **kwds: typing.Any
+        ) -> None:
         self.__function = function
         self.__args = args
         self.__kwds = kwds
         self.__name = function.__name__
-        self.__test_mode: TestModes = kwds.pop("test_mode")
+        self.__test_mode = test_mode
         
     def test(self):
         if self.__test_mode == TestModes.RUNTIME:
@@ -111,9 +117,10 @@ class TestRunner:
 
 
 class SetTesting:
-    def __init__(self, *args, **kwds) -> None:
+    def __init__(self, *args, test_mode: TestModes=TestModes.RUNTIME, **kwds) -> None:
         self.__args = args
+        self.__test_mode = test_mode
         self.__kwds = kwds
 
     def __call__(self, function) -> TestRunner:
-        return TestRunner(function, *self.__args, **self.__kwds)
+        return TestRunner(function, self.__test_mode *self.__args, **self.__kwds)
