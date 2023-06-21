@@ -3,13 +3,19 @@ import sys
 import time
 import typing
 
+from enum import Enum
 
-class TestModes (str, typing.Enum):
+
+class TestModes (str, Enum):
     MEMORY = "memory"
     RUNTIME = "runtime"
 
+class Units(str, Enum):
+    sec = "sec"
+    byte = "byte"
+
 class TestResult:
-    def __init__(self, result: int | float, unit: str) -> None:
+    def __init__(self, result: int | float, unit: Units) -> None:
         self.__result = result
         self.__unit = unit
 
