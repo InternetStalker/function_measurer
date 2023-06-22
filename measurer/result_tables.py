@@ -48,21 +48,9 @@ class ConsoleResultTable(BaseResultTable):
         
         if self._iters > 1:
             self._table.add_column("Average.")
-        for test, function_names in self._results.items():
-            for name, values in function_names.items():
-                row = (
-                    test,
-                    name,
-                    *(str(value) for value in values),
-                )
-
-                if self._iters > 1:
-                    row = (
-                        *row,
-                        str(self._get_average(values))
-                    )
-
-                self._table.add_row(*row)
+        
+        while self.results:
+            pass
 
     
     def show(self) -> None:
