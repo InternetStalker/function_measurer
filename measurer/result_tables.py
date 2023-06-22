@@ -21,8 +21,8 @@ class AbstractResultTable(ABC):
 
 
 class BaseResultTable(AbstractResultTable):
-    def __init__(self, iters: int, results: list[TestResult]) -> None:
-        self._iters = iters
+    def __init__(self, arguments: Arguments, results: list[TestResult]) -> None:
+        self._iters = arguments.iters
         self._results = results
     
     def create_table(self) -> None:
@@ -73,12 +73,12 @@ class ConsoleResultTable(BaseResultTable):
 class CsvResultTable(BaseResultTable):
     def __init__(
         self,
-        iters: int,
+        arguments: Arguments,
         results:  list[TestResult],
         path_to_csv: pathlib.Path
         ) -> None:
-        super().__init__(iters, results)
-        self._path_to_csv = path_to_csv
+        super().__init__(arguments, results)
+        self._path_to_csv = arguments.path_to_csv 
 
     def create_table(self) -> None:
         self._fieldnames = (
@@ -119,11 +119,11 @@ def create_result_table(
         arguments: Arguments
     ) -> BaseResultTable:
     if arguments.save_to_csv:
-        table = CsvResultTable(arguments.iters, results, arguments.path_to_csv)
+        table = CsvResultTable(arguments, results)
         table.create_table()
 
     else:
-        table = ConsoleResultTable(arguments.iters, results)
+        table = ConsoleResultTable(arguments, results)
         table.create_table()
     
     return table
