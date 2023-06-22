@@ -21,7 +21,7 @@ class AbstractResultTable(ABC):
 
 
 class BaseResultTable(AbstractResultTable):
-    def __init__(self, iters: int, results: dict[str: dict[str: list[TestResult]]]) -> None:
+    def __init__(self, iters: int, results: list[TestResult]) -> None:
         self._iters = iters
         self._results = results
     
