@@ -40,14 +40,14 @@ class BaseResultTable(AbstractResultTable):
 
 class ConsoleResultTable(BaseResultTable):
     def create_table(self) -> Table:
-        self.__table = Table()
-        self.__table.add_column("Tests.")
-        self.__table.add_column("Functions.")
+        self._table = Table()
+        self._table.add_column("Tests.")
+        self._table.add_column("Functions.")
         for i in range(1, self._iters+1):
-            self.__table.add_column(f"Iteration {i}.")
+            self._table.add_column(f"Iteration {i}.")
         
         if self._iters > 1:
-            self.__table.add_column("Average.")
+            self._table.add_column("Average.")
         for test, function_names in self._results.items():
             for name, values in function_names.items():
                 row = (
@@ -62,19 +62,19 @@ class ConsoleResultTable(BaseResultTable):
                         str(self._get_average(values))
                     )
 
-                self.__table.add_row(*row)
+                self._table.add_row(*row)
 
     
     def show(self) -> None:
         console = Console()
-        console.print(self.__table)
+        console.print(self._table)
 
 
 class CsvResultTable(BaseResultTable):
     def __init__(
         self,
         iters: int,
-        results: dict[str: dict[str: list[TestResult]]],
+        results:  list[TestResult],
         path_to_csv: pathlib.Path
         ) -> None:
         super().__init__(iters, results)
@@ -115,7 +115,7 @@ class CsvResultTable(BaseResultTable):
 
 
 def create_result_table(
-        results: dict[str: dict[str: list[TestResult]]],
+        results: list[TestResult],
         arguments: Arguments
     ) -> BaseResultTable:
     if arguments.save_to_csv:
