@@ -183,5 +183,5 @@ class Tester:
             if isinstance(getattr(script, name), TestRunner):
                 self._testing_functions.append(getattr(script, name))
 
-    def make_tests(self) -> None:
-        ...
+    def make_tests(self) -> list[TestResult]:
+        return [function.test() for function in self._testing_functions]
