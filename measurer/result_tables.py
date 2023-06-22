@@ -52,10 +52,12 @@ class ConsoleResultTable(BaseResultTable):
         raws = set()
         while self.results:
             result = self._results.pop(0)
-            raw = [result.test_mode, result.name, str(result)]
+            raw = [result.test_mode, result.name, result]
             for i, result in enumerate(results):
                 if result.test_mode == raw[0] and result.name == raw[1]:
-                    raw.append(str(result.pop(i)))
+                    raw.append(result.pop(i))
+
+            raw.append(self._get_average(raw[2:])
             raws.add(raw)
 
     
