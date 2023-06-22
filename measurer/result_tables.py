@@ -57,6 +57,11 @@ class ConsoleResultTable(BaseResultTable):
             raw.append(self._get_average(raw[2:])
             raws.add(raw)
 
+        for test_mode in TestModes:
+            for raw in raws:
+                if raw[1] == test_mode:
+                    self._table.add_raw(raw)
+
     
     def show(self) -> None:
         console = Console()
