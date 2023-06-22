@@ -80,9 +80,9 @@ class CsvResultTable(BaseResultTable):
 
     def create_table(self) -> None:
         self._fieldnames = (
-            "Tests.",
-            "Functions.",
-            *(f"Iteration {i}." for i in range(1, self._iters+1))
+            "Tests",
+            "Functions",
+            *(f"Iteration {i}" for i in range(1, self._iters+1))
         )
         if self._iters > 1:
             self._fieldnames = (
@@ -94,7 +94,10 @@ class CsvResultTable(BaseResultTable):
         for result in self._results:
             for raw in raws:
                 if result.test_mode == raw["test_mode"] and result.name == raw["name"]:
-                    pass
+                    raw[f"Iteration {len(self._fieldnames)-len(raw)}"] = result
+                    break
+            else:
+                raws.add({"Tests": result.test_mode, "Name": result.name, "Iteration 1": result})
 
 
 
