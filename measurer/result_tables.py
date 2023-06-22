@@ -49,8 +49,14 @@ class ConsoleResultTable(BaseResultTable):
         if self._iters > 1:
             self._table.add_column("Average.")
         
+        raws = set()
         while self.results:
-            pass
+            result = self._results.pop(0)
+            raw = [result.test_mode, result.name, str(result)]
+            for i, result in enumerate(results):
+                if result.test_mode == raw[0] and result.name == raw[1]:
+                    raw.append(str(result.pop(i)))
+            raws.add(raw)
 
     
     def show(self) -> None:
