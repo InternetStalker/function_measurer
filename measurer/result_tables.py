@@ -32,10 +32,7 @@ class BaseResultTable(AbstractResultTable):
         return super().show()
 
     def _get_average(self, results: list[TestResult]) -> TestResult:
-        sum_ = 0
-        for result in results:
-            sum_ += result.result
-        return sum_/len(results)
+        return sum(results)/len(results)
 
 
 class ConsoleResultTable(BaseResultTable):
