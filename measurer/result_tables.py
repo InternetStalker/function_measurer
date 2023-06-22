@@ -90,19 +90,6 @@ class CsvResultTable(BaseResultTable):
                 "Average."
             )
 
-        for test, function_names in self._results.items():
-            self._rows = []
-            for name, values in function_names.items():
-                row = {
-                    "Tests.": test,
-                    "Functions.": name,
-                    **{f"Iteration {i}.": str(value) for i, value in enumerate(values, start=1)},
-                }
-
-                if self._iters > 1:
-                    row["Average."] = str(self._get_average(values))
-
-                self._rows.append(row)
 
 
     def show(self) -> None:
