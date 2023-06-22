@@ -90,6 +90,12 @@ class CsvResultTable(BaseResultTable):
                 "Average."
             )
 
+        raws = set()
+        for result in self._results:
+            for raw in raws:
+                if result.test_mode == raw["test_mode"] and result.name == raw["name"]:
+                    pass
+
 
 
     def show(self) -> None:
